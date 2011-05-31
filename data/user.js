@@ -1,0 +1,1 @@
+g_user = { id: 0, name: '', roles: 0, permissions: 0, ads: true, cookies: {} };

@@ -1,0 +1,57 @@
+<?php
+
+/**
+ * Copyright (C) 2010-2011 Shadez <https://github.com/Shadez>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ **/
+
+Class WoWConfig {
+    public static $SiteTitle         = 'Wowhead';   // Site title
+    public static $UseCache          = false;       // NYI
+    public static $CacheLifeTime     = 86400;       // NYI
+    public static $EnableMaintenance = false;       // NYI
+    public static $UseLog            = true;        // Strongly recommended
+    public static $LogLevel          = 2;           // 1 - errors only, 2 - debug, 3 - debug SQL
+    public static $ConfigVersion     = '0000000000';
+    public static $CheckVersionType  = 'show';
+    public static $DefaultLocale     = 'ru';        // "en" or "ru"
+    public static $DefaultLocaleID   = 8;           // 0 - LOCALE_EN, 8 - LOCALE_RU
+    
+    /**
+     * $WoW_Path is the variable that creates correct links if site installed in non-root directory.
+     * It must be setted without ending slash!
+     * 
+     * Example: your CMS is installed in /wowhead/ directory and can be requested via http://example.org/wowhead/ URL.
+     * All you need is change value of this variable to '/wowhead'.
+     * If your CMS installed in root directory and can be requested via http://example.org/ URL, then leave this variable empty.
+     **/
+    public static $WoW_Path          = '/wowhead';
+    
+    /**
+     * $Static_Url is one of the most importand parts in this CMS.
+     * Due to this, CMS can normally handle Wowhead's javascript files.
+     * 
+     * If downloaded archive was placed into /wowhead_static directory (http://example.org/wowhead_static/),
+     * change value of this variable to '/wowhead_static'.
+     * If datas are on different server, write full URL here:
+     * 'http://example2.org/wowhead/wowhead_datas/wowhead_static'.
+     * 
+     * The path must be setted without ending slash!
+     **/
+    public static $Static_Url        = '/wowhead_static';
+}
+
+?>

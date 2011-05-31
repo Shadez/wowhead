@@ -1,0 +1,10 @@
+1) Download sources from Github.com
+2) Download static data from "Downloads" section (https://github.com/Shadez/wowhead/downloads)
+3) Unzip static data to some directory
+4) Rename "includes/configs/*.php.default" to "*.php" and edit WoWConfig.php file (read comments about $WoW_Path and $Static_Url varables!).
+5) Unzip .htaccess file and change
+
+      ErrorDocument 404 /wowhead/index.php?error=404
+      ErrorDocument 403 /wowhead/index.php?error=403
+      
+   to your correct path.

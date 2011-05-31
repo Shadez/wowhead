@@ -1,0 +1,1 @@
+<div class="toplinks linklist"><a href="<?php echo WoW::GetWoWPath(); ?>/account=signin">Sign in</a>|<a href="#" id="toplinks-feedback" class="icon-email">Feedback</a>|<a href="#" id="toplinks-language"></a></div>
