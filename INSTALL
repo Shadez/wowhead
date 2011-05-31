@@ -8,3 +8,4 @@
       ErrorDocument 403 /wowhead/index.php?error=403
       
    to your correct path.
+6) Upload SQLs from sql/wowhead_rXX.7z archive into WORLD(!) database (mangos, for example).
