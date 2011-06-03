@@ -82,10 +82,16 @@ Class DB {
     }
     
     public static function Realm() {
+        if(!self::IsConnected(DB_REALM)) {
+            self::ConnectToDB(DB_REALM);
+        }
         return self::GetDB(DB_REALM);
     }
     
     public static function World() {
+        if(!self::IsConnected(DB_WORLD)) {
+            self::ConnectToDB(DB_WORLD);
+        }
         return self::GetDB(DB_WORLD);
     }
 }

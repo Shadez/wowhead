@@ -90,7 +90,7 @@
 </div>
 
 <div id="tw5ekjm9wex1">
-<div id="lnewwegnwe53"><div><a href="/help=stat-weighting" target="_blank" class="icon-help" id="gnjndfgkjdfg35">Help</a></div></div>
+<div id="lnewwegnwe53"><div><a href="<?php echo WoW::GetWoWPath(); ?>/help=stat-weighting" target="_blank" class="icon-help" id="gnjndfgkjdfg35">Help</a></div></div>
 <table>
 <tr>
 <td>Preset: &nbsp;</td>

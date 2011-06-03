@@ -34,6 +34,9 @@ Class WoW_Items extends WoW_Abstract {
         switch($page_type) {
             case 'items':
                 self::ExtractCategory($page_type, $category, self::$m_items_class, self::$m_items_subclass);
+                if(isset($_GET['filter'])) {
+                    self::SetFilter($_GET['filter']);
+                }
                 self::LoadItems();
                 self::HandleItems();
                 break;
@@ -46,14 +49,70 @@ Class WoW_Items extends WoW_Abstract {
         return true;
     }
     
-    private static function LoadItems() {
-        $filter = '';
+    private static function GetFiltersForItems() {
+        $filter_string = null;
+        $andOr = 1;
+        $all_filters = WoW::GetFilters();
+        if(is_array($all_filters)) {
+            foreach($all_filters as $filter) {
+                if(!isset($filter['key']) || !isset($filter['values'])) {
+                    continue;
+                }
+                $val_count = count($filter['values']);
+                switch($filter['key']) {
+                    case 'qu':
+                        if($val_count == 1) {
+                            $filter_string .= sprintf(' {COND} `a`.`Quality` = %d', $filter['values'][0]);
+                        }
+                        else {
+                            $filter_string .= ' {COND} `a`.`Quality` IN (';
+                            for($i = 0; $i < $val_count; ++$i) {
+                                $filter_string .= $filter['values'][$i];
+                                if($i < ($val_count-1)) {
+                                    if(isset($filter['values'][$i + 1]) && $filter['values'][$i + 1] != null) {
+                                        $filter_string .= ',';
+                                    }
+                                }
+                            }
+                            $filter_string .= ')';
+                        }
+                        break;
+                    case 'minle':
+                        $filter_string .= sprintf(' {COND} `a`.`ItemLevel` >= %d', $filter['values'][0]);
+                        break;
+                    case 'maxle':
+                        $filter_string .= sprintf(' {COND} `a`.`ItemLevel` <= %d', $filter['values'][0]);
+                        break;
+                    case 'me':
+                        if($filter['values'][0] == 1) {
+                            $andOr = 2;
+                        }
+                        break;
+                    case 'minrl':
+                        $filter_string .= sprintf(' {COND} `a`.`RequiredLevel` >= %d', $filter['values'][0]);
+                        break;
+                    case 'maxrl':
+                        $filter_string .= sprintf(' {COND} `a`.`RequiredLevel` <= %d', $filter['values'][0]);
+                        break;
+                    case 'sl':
+                        $filter_string .= sprintf(' {COND} `a`.`InventoryType` = %d', $filter['values'][0]);
+                        WoW_Template::SetPageData('breadcrumb', WoW_Template::GetPageData('breadcrumb') . ',' . $filter['values'][0]);
+                        break;
+                }
+            }
+        }
         if(self::$m_items_class >= 0) {
-            $filter = sprintf('WHERE `a`.`class` = %d', self::$m_items_class);
+            $filter_string .= sprintf(' {COND} `a`.`class` = %d', self::$m_items_class);
         }
         if(self::$m_items_subclass >= 0) {
-            $filter .= sprintf(' AND `a`.`subclass` = %d', self::$m_items_subclass);
+            $filter_string .= sprintf(' {COND} `a`.`subclass` = %d', self::$m_items_subclass);
         }
+        $filter_string = str_replace('{COND}', $andOr == 2 ? 'OR' : 'AND', $filter_string);
+        return 'WHERE `a`.`entry` > 0' . $filter_string;
+    }
+    
+    private static function LoadItems() {
+        $filter = self::GetFiltersForItems();
         self::$m_items = DB::World()->select("
         SELECT
         `a`.`entry`,
@@ -654,7 +713,11 @@ Class WoW_Items extends WoW_Abstract {
         }
         $creatures = array();
         $difficulty_levels = array();
+        $added_creatures = array();
         foreach($drop_creatures as $creature) {
+            if(in_array($creature['entry'], $added_creatures)) {
+                continue;
+            }
             $kc_entry = 0;
             $difficulty_level = 0; // 5 ppl normal or 10ppl normal
             if($creature['KillCredit1'] > 0) {
@@ -662,6 +725,9 @@ Class WoW_Items extends WoW_Abstract {
             }
             elseif($creature['KillCredit2'] > 0) {
                 $kc_entry = $creature['KillCredit2'];
+            }
+            if($kc_entry > 0 && in_array($kc_entry, $added_creatures)) {
+                continue;
             }
             $name_info = array();
             $zone_info = array();
@@ -768,6 +834,7 @@ Class WoW_Items extends WoW_Abstract {
             }
             unset($creature['map'], $creature['pos_x'], $creature['pos_y'], $creature['KillCredi1'], $creature['KillCredi2'], $creature['guid']);
             $creatures[] = $creature;
+            $added_creatures[] = $creature['entry'];
         }
         // Table note
         $dropInfo = '';

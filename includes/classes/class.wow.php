@@ -250,14 +250,14 @@ Class WoW {
         self::AssignTemplatePageIndex(array('factions', 'faction'));
     }
     
-    public static function InitFilters() {
-        if($_POST) {
+    public static function InitFilters($parsePost = true) {
+        if($_POST && $parsePost) {
             $filter_filters = null;
             foreach($_POST as $filterKey => $filterValue) {
                 if(!$filterValue) {
                     continue;
                 }
-                $filter_filters .= $filterKey .= '=';
+                $filter_filters .= $filterKey . '=';
                 if(is_array($filterValue)) {
                     $max = count($filterValue);
                     $current = 1;
@@ -270,10 +270,10 @@ Class WoW {
                     $filter_filters .= ';';
                 }
                 else {
-                    $filter_filters .= $filterKey . '=' . $filterValue . ';';
+                    $filter_filters .=  $filterValue . ';';
                 }
             }
-            header('Location: ' . WoW::GetWoWPath() . '/' . self::GetPageID() . '?filter=' . $filter_filters);
+            header('Location: ' . WoW::GetWoWPath() . '/' . self::GetPageAction() . '?filter=' . $filter_filters);
             exit;
         }
         /*
@@ -312,7 +312,7 @@ Class WoW {
                 [ta] => ItemsetTag
                 [ty] => ItemInventoryTypeID
         */
-        WoW_Template::SetPageIndex('filters');
+        //WoW_Template::SetPageIndex('filters');
         if(!isset($_GET['filter'])) {
             return false;
         }
@@ -472,10 +472,14 @@ Class WoW {
     }
     
     public static function GetFilters() {
+        if(!is_array(self::$m_filters) || !self::$m_filters) {
+            self::InitFilters(false);
+        }
         return self::$m_filters;
     }
     
     public static function IsRegisteredPage() {
+        //echo WoW_Template::GetPageIndex();
         switch(WoW_Template::GetPageIndex()) {
             case 'achievements':
             case 'achievement':
@@ -511,7 +515,7 @@ Class WoW {
             case 'zone':
             case 'talent':
             case 'petcalc':
-            case 'filter':
+            case 'filters':
             case 'compare':
             case 'profiler':
             case 'bluetracker':

@@ -7,7 +7,7 @@ if(WoW_Template::GetPageIndex() == 'home') {
 PageTemplate.set({pageName: \'%s\'});
 PageTemplate.init();
 g_captchaType = 1;g_dataKey = \'dc6c325d392a0f6fb411b6fb9c3fdf31d5cbf606\';g_host = \'http://www02.wowhead.com\';
-//]]></script>', WoW::GetLastUrlData());
+//]]></script>', WoW::GetPageID());
 }
 ?>
 

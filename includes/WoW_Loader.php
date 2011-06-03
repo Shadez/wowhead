@@ -49,9 +49,26 @@ include(WOW_DIRECTORY . '/includes/classes/class.achievements.php');
 include(WOW_DIRECTORY . '/includes/classes/class.items.php');
 include(WOW_DIRECTORY . '/includes/classes/class.utils.php');
 include(WOW_DIRECTORY . '/includes/classes/class.search.php');
+
 // Load data
 include(WOW_DIRECTORY . '/includes/data/data.classes.php');
 include(WOW_DIRECTORY . '/includes/data/data.races.php');
+/*
+// Perform log in (if required)
+if(isset($_GET['login']) || preg_match('/\?login/', $_SERVER['REQUEST_URI'])) {
+    header('Location: ' . WoW::GetWoWPath() . '/login/');
+    exit;
+}
+// Perform logout (if required)
+if(isset($_GET['logout']) || preg_match('/\?logout/', $_SERVER['REQUEST_URI'])) {
+    // $_SERVER['REQUEST_URI'] check is required for mod_rewrited URL cases.
+    WoW_Account::PerformLogout();
+    header('Location: ' . WoW::GetWoWPath() . '/');
+    exit;
+}
+// Initialize account (if user already logged in we need to re-build his info from session data)
+WoW_Account::Initialize();
+*/
 // Locale
 if(isset($_GET['locale'])) {
     $_SESSION['wow_locale'] = $_GET['locale'];
@@ -80,8 +97,12 @@ WoW_Log::Initialize(WoWConfig::$UseLog, WoWConfig::$LogLevel);
 // Load databases configs
 DB::LoadConfigs();
 // Initialize connections to databases
-DB::ConnectToAllDBs();
+//DB::ConnectToAllDBs();
 if(isset($_GET['_DISPLAYVERSION_'])) {
-    die('VERSION: ' . WOW_REVISION);
+    die(WOW_REVISION);
 }
+// RunOnce.
+//define('__RUNONCE__', true);
+//include(WOW_DIRECTORY . '/includes/RunOnce.php');
+//WoW::AddInWoW();
 ?>
