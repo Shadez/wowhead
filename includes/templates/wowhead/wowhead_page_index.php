@@ -5,10 +5,7 @@ if(WoW_Template::GetPageIndex() == 'data') {
 }
 WoW_Template::LoadTemplate('block_header');
 ?>
-<body class="<?php
-$body_class = explode('=', WoW::GetLastUrlData());
-echo $body_class[0];
-?>">
+<body class="<?php echo WoW::GetPageID(); ?>">
 
 <div style="position: absolute; width: 1px; height: 1px; background: url('images/ui/wsa-notification.png') no-repeat"></div>
 

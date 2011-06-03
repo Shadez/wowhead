@@ -1,6 +1,6 @@
 <div id="fi">
 
-<form action="/filter=items" method="post" name="fi" onsubmit="return fi_submit(this)" onreset="return fi_reset(this)">
+<form action="<?php echo WoW::GetWoWPath(); ?>/filter=items" method="post" name="fi" onsubmit="return fi_submit(this)" onreset="return fi_reset(this)">
 
 <div class="rightpanel">
 <div style="float: left">Quality: </div><small><a href="javascript:;" onclick="document.forms['fi'].elements['qu[]'].selectedIndex = -1; return false" onmousedown="return false">clear</a></small>

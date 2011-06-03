@@ -20,8 +20,9 @@
 
 Class WoW {
     
-    private static $m_urlData = array();
-    private static $m_pageUrlData = array();
+    private static $m_filters = array();
+    private static $m_action = null;
+    private static $m_pageId = null;
     
     public static function InitWoW() {
         if(isset($_GET['error'])) {
@@ -34,194 +35,207 @@ Class WoW {
         }
         self::ParseUrl();
     }
-    
-    private static function SetUrlData($url_data, $iter) {
-        $size = sizeof($url_data);
-        $diff = abs(0 - $iter);
-        self::$m_urlData = array();
-        for(/*$iter = $iter*/; $iter < $size; ++$iter) {
-            self::$m_urlData[$iter - $diff] = $url_data[$iter];
-        }
-    }
-    
-    public static function GetLastUrlData() {
-        return isset(self::$m_urlData[sizeof(self::$m_urlData) - 1]) ? self::$m_urlData[sizeof(self::$m_urlData) - 1] : null;
-    }
-    
-    public static function GetFullUrlData() {
-        return self::$m_urlData;
-    }
-    
-    private static function SetPageUrlData($page_url_data) {
-        self::$m_pageUrlData = $page_url_data;
-    }
-    
-    public static function GetLastPageUrlData() {
-        return isset(self::$m_pageUrlData[sizeof(self::$m_pageUrlData) - 1]) ? self::$m_pageUrlData[sizeof(self::$m_pageUrlData) - 1] : null;
-    }
-    
-    public static function GetFullPageUrlData() {
-        return self::$m_pageUrlData;
-    }
-    
+        
     private static function ParseUrl() {
-        $url_array = explode('/', $_SERVER['REQUEST_URI']);
-        if(!$url_array) {
+        $request_uri = explode('/', $_SERVER['REQUEST_URI']);
+        if(!is_array($request_uri)) {
             WoW_Template::SetPageIndex('error');
             return false;
         }
-        $count = count($url_array);
-        for($i = 0; $i < $count; ++$i) {
-            self::SetUrlData($url_array, $i);
-            $page_url = explode('=', $url_array[$i]);
-            if(!is_array($page_url)) {
-                continue;
+        $count = count($request_uri);
+        $page_url = $request_uri[$count-1]; // required page
+        $filtered_url = explode('?', $page_url);
+        $page_id = '';
+        if(is_array($filtered_url)) {
+            // Extract sub info
+            $sub_info = explode('=', $filtered_url[0]);
+            if(is_array($sub_info) && isset($sub_info[1])) {
+                self::SetPageAction($sub_info[1]); // ID or category filer
             }
-            self::SetPageUrlData($page_url);
-            switch($page_url[0]) {
-                /** Core section **/
-                case 'data':
-                    self::InitData();
-                    break;
-                /** Database section **/
-                case 'achievements':
-                case 'achievement':
-                    self::InitAchievements();
-                    break;
-                case 'classes':
-                case 'class':
-                    self::InitClasses();
-                    break;
-                case 'currencies':
-                case 'currency':
-                    self::InitCurrencies();
-                    break;
-                case 'factions':
-                case 'faction':
-                    self::InitFactions();
-                    break;
-                case 'pets':
-                case 'pet':
-                    self::InitPets();
-                    break;
-                case 'itemsets':
-                case 'itemset':
-                    self::InitItemSets();
-                    break;
-                case 'items':
-                case 'item':
-                    self::InitItems();
-                    break;
-                case 'npcs':
-                case 'npc':
-                    self::InitNPCs();
-                    break;
-                case 'objects':
-                case 'object':
-                    self::InitObjects();
-                    break;
-                case 'skills':
-                case 'skill':
-                    self::InitSkills();
-                    break;
-                case 'quests':
-                case 'quest':
-                    self::InitQuests();
-                    break;
-                case 'races':
-                case 'race':
-                    self::InitRaces();
-                    break;
-                case 'spells':
-                case 'spell':
-                    self::InitSpells();
-                    break;
-                case 'titles':
-                case 'title':
-                    self::InitTitles();
-                    break;
-                case 'events':
-                case 'event':
-                    self::InitWorldEvents();
-                    break;
-                case 'zones':
-                case 'zone':
-                    self::InitZones();
-                    break;
-                /** Tools section **/
-                case 'talent':
-                    self::InitTalentCalc();
-                    break;
-                case 'petcalc':
-                    self::InitPetCalc();
-                    break;
-                case 'compare':
-                case 'profiler':
-                case 'bluetracker':
-                case 'maps':
-                case 'guide':
-                case 'patchnotes':
-                /** Utilites **/
-                case 'latest-achievements':
-                case 'latest-additions':
-                case 'latest-comments':
-                case 'latest-screenshots':
-                case 'latest-videos':
-                case 'most-comments':
-                case 'unrated-comments':
-                case 'missing-screenshots':
-                case 'random':
-                case 'latest-replies':
-                case 'latest-topics':
-                case 'unanswered-topics':
-                case 'latest-blog-comments':
-                    self::InitUtils();
-                    break;
-                /** Community section **/
-                case 'blog':
-                case 'forums':
-                case 'website-achievements':
-                case 'contests':
-                case 'xfire':
-                case 'irc':
-                    self::InitCommunity();
-                    break;
-                /** More section **/
-                case 'aboutus':
-                case 'advertise':
-                case 'faq':
-                case 'help':
-                case 'jobs':
-                case 'premium':
-                case 'searchplugins':
-                case 'logos':
-                case 'whats-new':
-                case 'client':
-                case 'newsfeed':
-                case 'searchbox':
-                case 'tooltips':
-                case 'home':
-                case 'search':
-                    self::InitWebSite();
-                    break;
-                /** Custom sections **/
-                case 'error':
-                    WoW_Template::SetPageIndex('error');
-                    break;
-                default:
-                    break;
+            $page_id = $sub_info[0];
+        }
+        else {
+            // "?" was not found. Try to find subinfo again.
+            $sub_info = explode('=', $page_url);
+            if(is_array($sub_info) && isset($sub_info[1])) {
+                self::SetPageAction($sub_info[1]); //
+                $page_id = $sub_info[0];
             }
+            else {
+                $page_id = $filtered_url[0];
+            }
+        }
+        // PageID is in $page_id variable.
+        self::SetPageID($page_id);
+        // Run appropriate page
+        self::RunWoW();
+    }
+    
+    private static function SetPageID($page_id) {
+        self::$m_pageId = $page_id;
+    }
+    
+    public static function GetPageID() {
+        return self::$m_pageId;
+    }
+    
+    private static function SetPageAction($action) {
+        self::$m_action = $action;
+    }
+    
+    public static function GetPageAction() {
+        return self::$m_action;
+    }
+    
+    private static function RunWoW() {
+       // echo self::GetPageID();
+       // die;
+        switch(self::GetPageID()) {
+            /** Core section **/
+            case 'data':
+                self::InitData();
+                break;
+            /** Database section **/
+            case 'achievements':
+            case 'achievement':
+                self::InitAchievements();
+                break;
+            case 'classes':
+            case 'class':
+                self::InitClasses();
+                break;
+            case 'currencies':
+            case 'currency':
+                self::InitCurrencies();
+                break;
+            case 'factions':
+            case 'faction':
+                self::InitFactions();
+                break;
+            case 'pets':
+            case 'pet':
+                self::InitPets();
+                break;
+            case 'itemsets':
+            case 'itemset':
+                self::InitItemSets();
+                break;
+            case 'items':
+            case 'item':
+                self::InitItems();
+                break;
+            case 'npcs':
+            case 'npc':
+                self::InitNPCs();
+                break;
+            case 'objects':
+            case 'object':
+                self::InitObjects();
+                break;
+            case 'skills':
+            case 'skill':
+                self::InitSkills();
+                break;
+            case 'quests':
+            case 'quest':
+                self::InitQuests();
+                break;
+            case 'races':
+            case 'race':
+                self::InitRaces();
+                break;
+            case 'spells':
+            case 'spell':
+                self::InitSpells();
+                break;
+            case 'titles':
+            case 'title':
+                self::InitTitles();
+                break;
+            case 'events':
+            case 'event':
+                self::InitWorldEvents();
+                break;
+            case 'zones':
+            case 'zone':
+                self::InitZones();
+                break;
+            /** Tools section **/
+            case 'talent':
+                self::InitTalentCalc();
+                break;
+            case 'petcalc':
+                self::InitPetCalc();
+                break;
+            case 'filter':
+                self::InitFilters();
+                break;
+            case 'compare':
+            case 'profiler':
+            case 'bluetracker':
+            case 'maps':
+            case 'guide':
+            case 'patchnotes':
+            /** Utilites **/
+            case 'latest-achievements':
+            case 'latest-additions':
+            case 'latest-comments':
+            case 'latest-screenshots':
+            case 'latest-videos':
+            case 'most-comments':
+            case 'unrated-comments':
+            case 'missing-screenshots':
+            case 'random':
+            case 'latest-replies':
+            case 'latest-topics':
+            case 'unanswered-topics':
+            case 'latest-blog-comments':
+                self::InitUtils();
+                break;
+            /** Community section **/
+            case 'blog':
+            case 'forums':
+            case 'website-achievements':
+            case 'contests':
+            case 'xfire':
+            case 'irc':
+                self::InitCommunity();
+                break;
+            /** More section **/
+            case 'aboutus':
+            case 'advertise':
+            case 'faq':
+            case 'help':
+            case 'jobs':
+            case 'premium':
+            case 'searchplugins':
+            case 'logos':
+            case 'whats-new':
+            case 'client':
+            case 'newsfeed':
+            case 'searchbox':
+            case 'tooltips':
+            case 'home':
+            case 'search':
+                self::InitWebSite();
+                break;
+            /** Custom sections **/
+            case 'error':
+                WoW_Template::SetPageIndex('error');
+                break;
+            default:
+                break;
         }
         if(WoW_Template::GetPageIndex() == null) {
             self::InitWebSite();
         }
-        WoW_Template::SetPageData('page_url', self::GetLastUrlData());
+        WoW_Template::SetPageData('page_url', self::GetPageID());
     }
     
     private static function InitAchievements() {
         self::AssignTemplatePageIndex(array('achievements', 'achievement'));
         WoW_Template::SetPageData('activeTab', 0);
-        WoW_Achievements::InitPage(WoW_Template::GetPageIndex(), self::GetLastPageUrlData());
+        WoW_Achievements::InitPage(WoW_Template::GetPageIndex(), self::GetPageAction());
     }
     
     private static function InitClasses() {
@@ -236,6 +250,105 @@ Class WoW {
         self::AssignTemplatePageIndex(array('factions', 'faction'));
     }
     
+    public static function InitFilters() {
+        if($_POST) {
+            $filter_filters = null;
+            foreach($_POST as $filterKey => $filterValue) {
+                if(!$filterValue) {
+                    continue;
+                }
+                $filter_filters .= $filterKey .= '=';
+                if(is_array($filterValue)) {
+                    $max = count($filterValue);
+                    $current = 1;
+                    foreach($filterValue as $val) {
+                        $filter_filters .= $val;
+                        if($current < $max) {
+                            $filter_filters .= ':';
+                        }
+                    }
+                    $filter_filters .= ';';
+                }
+                else {
+                    $filter_filters .= $filterKey . '=' . $filterValue . ';';
+                }
+            }
+            header('Location: ' . WoW::GetWoWPath() . '/' . self::GetPageID() . '?filter=' . $filter_filters);
+            exit;
+        }
+        /*
+            COMMON FILTERS:
+                [na] => Name
+                [si] => Side (1 - Alliance, -1 - Alliance only, 2 - Horde, -2 - Horde only, 3 - both)
+                [cr] => CommonFilterID
+                [crs] => FirstFilterValID
+                [crv] => SecondFilterValID
+            ITEM FILTERS:
+                [sl] => SlotID
+                [qu] => QualityID
+                [minle] => MinItemLevel
+                [maxle] => MaxItemLevel
+                [minrl] => MinRequiredLevel
+                [maxrl] => MaxRequiredLevel
+                [ub] => UseableClassID
+                [gt] => GetTypes
+            ACHIEVEMENTS FILTERS:
+                [minpt] => Min Points
+                [maxpt] => Max Points
+            QUESTS FILTERS:
+                [minle] => MinQuestLevel
+                [maxle] => MaxQuestLevel
+            SPELLS FILTERS:
+                [me] => MechanicID
+                [dt] => DispellTypeID
+                [sc] => SpellSchoolID
+                [ra] => RaceID
+            NPCS FILTERS:
+                [ra] => ReactionAlliance
+                [rh] => ReactionHorde
+                [fa] => FamilyID
+                [cl] => ClassificationID
+            ITEMSET FILTERS:
+                [ta] => ItemsetTag
+                [ty] => ItemInventoryTypeID
+        */
+        WoW_Template::SetPageIndex('filters');
+        if(!isset($_GET['filter'])) {
+            return false;
+        }
+        // Try to explode
+        $filter_items = explode(';', $_GET['filter']);
+        if(!$filter_items) {
+            return false;
+        }
+        $filter = array();
+        foreach($filter_items as $item) {
+            $current = explode('=', $item);
+            if(!$current || !isset($current[1])) {
+                continue;
+            }
+            $each = explode(':', $current[1]);
+            if($each) {
+                $temp = array(
+                    'key' => $current[0],
+                    'values' => array()
+                );
+                foreach($each as $value) {
+                    $temp['values'][] = $value;
+                }
+            }
+            else {
+                $temp = array(
+                    'key' => $current[0],
+                    'values' => $current[1]
+                );
+            }
+            $filter[] = $temp;
+        }
+        self::$m_filters = $filter;
+        unset($filter, $item);
+    }
+    
     private static function InitPets() {
         self::AssignTemplatePageIndex(array('pets', 'pet'));
     }
@@ -247,7 +360,7 @@ Class WoW {
     private static function InitItems() {
         self::AssignTemplatePageIndex(array('items', 'item'));
         WoW_Template::SetPageData('activeTab', 0);
-        WoW_Items::InitPage(WoW_Template::GetPageIndex(), self::GetLastPageUrlData());
+        WoW_Items::InitPage(WoW_Template::GetPageIndex(), self::GetPageAction());
     }
     
     private static function InitNPCs() {
@@ -307,7 +420,7 @@ Class WoW {
             // Prevent re-assigning PageIndex
             WoW_Template::SetPageIndex('home');
         }
-        switch(self::GetLastUrlData()) {
+        switch(self::GetPageID()) {
             case 'search':
                 WoW_Search::InitPage('search', 0);
                 break;
@@ -317,11 +430,11 @@ Class WoW {
     private static function InitData() {
         WoW_Template::SetPageIndex('data');
         $js_contents = null;
-        switch(self::GetLastPageUrlData()) {
+        switch(self::GetPageAction()) {
             case 'spell-scaling':
             case 'item-scaling':
             case 'user':
-                $js_contents = file_get_contents('data/' . self::GetLastPageUrlData() . '.js');
+                $js_contents = file_get_contents('data/' . self::GetPageAction() . '.js');
                 break;
             case 'weight-presets.zones':
                 $js_contents = file_get_contents('data/weight-presets.zones-' . WoW_Locale::GetLocaleID() . '.js');
@@ -331,7 +444,7 @@ Class WoW {
     }
     
     private static function AssignTemplatePageIndex($g_types) {
-        WoW_Template::SetPageIndex(strpos(self::GetLastUrlData(), $g_types[0]) !== false ? $g_types[0] : $g_types[1]);
+        WoW_Template::SetPageIndex(strpos(self::GetPageID(), $g_types[0]) !== false ? $g_types[0] : $g_types[1]);
     }
     
     public static function GetWoWPath() {
@@ -356,6 +469,10 @@ Class WoW {
     
     public static function GetSiteTitle() {
         return WoWConfig::$SiteTitle;
+    }
+    
+    public static function GetFilters() {
+        return self::$m_filters;
     }
     
     public static function IsRegisteredPage() {
@@ -394,6 +511,7 @@ Class WoW {
             case 'zone':
             case 'talent':
             case 'petcalc':
+            case 'filter':
             case 'compare':
             case 'profiler':
             case 'bluetracker':

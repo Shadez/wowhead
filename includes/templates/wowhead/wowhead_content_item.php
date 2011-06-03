@@ -1,11 +1,9 @@
 <?php
 $proto = WoW_Items::GetItem();
-echo '<!--
-';
+//echo '<!--';
 WoW_Items::GetDropCreaturesSource(true);
 //print_r($proto);
-echo '
--->';
+//echo '-->';
 ?>
 <script type="text/javascript">//<![CDATA[
 var _ = g_users;
