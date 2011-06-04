@@ -697,5 +697,101 @@ Class WoW_Utils {
             'pos_y' => $npc_coordinates['position_y']
         );
     }
+    
+    public function GetClassBitMaskByClassId($classId) {
+        $mask = 0;
+        switch($classId) {
+            case CLASS_WARRIOR:
+                $mask = 1;
+                break;
+            case CLASS_PALADIN:
+                $mask = 2;
+                break;
+            case CLASS_HUNTER:
+                $mask = 4;
+                break;
+            case CLASS_ROGUE:
+                $mask = 8;
+                break;
+            case CLASS_PRIEST:
+                $mask = 16;
+                break;
+            case CLASS_DK:
+                $mask = 32;
+                break;
+            case CLASS_SHAMAN:
+                $mask = 64;
+                break;
+            case CLASS_MAGE:
+                $mask = 128;
+                break;
+            case CLASS_WARLOCK:
+                $mask = 256;
+                break;
+            case CLASS_DRUID:
+                $mask = 1024;
+                break;
+        }
+        return $mask;
+    }
+    
+    public function GetRaceBitMaskByRaceId($raceId) {
+        $mask = 0;
+        switch($raceId) {
+            case RACE_HUMAN:
+                $mask = 1;
+                break;
+            case RACE_ORC:
+                $mask = 2;
+                break;
+            case RACE_DWARF:
+                $mask = 4;
+                break;
+            case RACE_NIGHTELF:
+                $mask = 8;
+                break;
+            case RACE_UNDEAD:
+                $mask = 16;
+                break;
+            case RACE_TAUREN:
+                $mask = 32;
+                break;
+            case RACE_GNOME:
+                $mask = 64;
+                break;
+            case RACE_TROLL:
+                $mask = 128;
+                break;
+            case RACE_BLOODELF:
+                $mask = 512;
+                break;
+            case RACE_DRAENEI:
+                $mask = 1024;
+                break;
+        }
+        return $mask;
+    }
+    
+    public function GetFactionBitMaskByFactionId($factionID) {
+        $bitMask = 0;
+        switch($factionID) {
+            case FACTION_ALLIANCE:
+                $races = array(
+                    RACE_HUMAN, RACE_DWARF, RACE_NIGHTELF, RACE_GNOME, RACE_DRAENEI
+                );
+                break;
+            case FACTION_HORDE:
+                $races = array(
+                    RACE_ORC, RACE_UNDEAD, RACE_TAUREN, RACE_TROLL, RACE_BLOODELF
+                );
+                break;
+            default:
+                return $bitMask;
+        }
+        foreach($races as $race) {
+            $bitMask |= WoW_Utils::GetRaceBitMaskByRaceId($race);
+        }
+        return $bitMask;
+    }
 }
 ?>

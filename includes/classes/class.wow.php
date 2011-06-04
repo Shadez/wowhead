@@ -254,14 +254,17 @@ Class WoW {
         if($_POST && $parsePost) {
             $filter_filters = null;
             foreach($_POST as $filterKey => $filterValue) {
-                if(!$filterValue) {
+                if((!is_string($filterValue) || $filterValue == null || empty($filterValue)) && (!is_array($filterValue) || !$filterValue)) {
                     continue;
                 }
-                $filter_filters .= $filterKey . '=';
-                if(is_array($filterValue)) {
+                if(is_array($filterValue) && count($filterValue) > 0) {
+                    $filter_filters .= $filterKey . '=';
                     $max = count($filterValue);
                     $current = 1;
                     foreach($filterValue as $val) {
+                        if($val === null) {
+                            continue;
+                        }
                         $filter_filters .= $val;
                         if($current < $max) {
                             $filter_filters .= ':';
@@ -269,10 +272,11 @@ Class WoW {
                     }
                     $filter_filters .= ';';
                 }
-                else {
-                    $filter_filters .=  $filterValue . ';';
+                elseif($filterValue !== null) {
+                    $filter_filters .= $filterKey . '=' . $filterValue . ';';
                 }
             }
+            $filter_filters = str_replace(array(':;', '=;'), ';', $filter_filters);
             header('Location: ' . WoW::GetWoWPath() . '/' . self::GetPageAction() . '?filter=' . $filter_filters);
             exit;
         }
@@ -322,6 +326,8 @@ Class WoW {
             return false;
         }
         $filter = array();
+        $advanced_filters = array();
+        $nextId = 0;
         foreach($filter_items as $item) {
             $current = explode('=', $item);
             if(!$current || !isset($current[1])) {
@@ -333,8 +339,19 @@ Class WoW {
                     'key' => $current[0],
                     'values' => array()
                 );
+                if(in_array($current[0], array('cr', 'crv', 'crs'))) {
+                    $advanced_filters[$current[0]] = array(
+                        'key' => $current[0],
+                        'values' => array()
+                    );
+                }
                 foreach($each as $value) {
-                    $temp['values'][] = $value;
+                    if($value !== null) {
+                        $temp['values'][] = $value;
+                    }
+                    if(in_array($current[0], array('cr', 'crv', 'crs')) && !empty($value)) {
+                        $advanced_filters[$current[0]]['values'][] = $value;
+                    }
                 }
             }
             else {
@@ -342,9 +359,17 @@ Class WoW {
                     'key' => $current[0],
                     'values' => $current[1]
                 );
+                if(in_array($current[0], array('cr', 'crv', 'crs'))) {
+                    $advanced_filters[$current[0]] = array(
+                        'key' => $current[0],
+                        'values' => array($current[1])
+                    );
+                }
             }
+            ++$nextId;
             $filter[] = $temp;
         }
+        WoW_Template::SetPageData('advanced_filters', $advanced_filters);
         self::$m_filters = $filter;
         unset($filter, $item);
     }
@@ -479,7 +504,6 @@ Class WoW {
     }
     
     public static function IsRegisteredPage() {
-        //echo WoW_Template::GetPageIndex();
         switch(WoW_Template::GetPageIndex()) {
             case 'achievements':
             case 'achievement':
@@ -557,6 +581,58 @@ Class WoW {
                 return true;
             default:
                 return false;
+        }
+    }
+    
+    public static function GetFilterValueByKey($key) {
+        foreach(self::$m_filters as $filter) {
+            if($filter['key'] == $key) {
+                return $filter['values'];
+            }
+        }
+        return false;
+    }
+    
+    public static function BuildAdvancedFiltersInfo(&$criterias, &$extraCols) {
+        $advanced_filters = WoW_Template::GetPageData('advanced_filters');
+        $criterias = null;
+        $extraCols = null;
+        if($advanced_filters && is_array($advanced_filters)) {
+            if(isset($advanced_filters['cr'])) {
+                $criterias = '[';
+                $extraCols = $criterias;
+                foreach($advanced_filters['cr']['values'] as $val) {
+                    $criterias .= $val . ',';
+                    $extraCols .= $val . ',';
+                }
+                $extraCols .= ']';
+                $extraCols = str_replace(',]', ']', $extraCols);
+                $criterias .= ']';
+                if(isset($advanced_filters['crv'])) {
+                    $criterias .= ', [';
+                    foreach($advanced_filters['crv']['values'] as $val) {
+                        $criterias .= $val . ',';
+                    }
+                    $criterias .= ']';
+                    if(isset($advanced_filters['crs'])) {
+                        $criterias .= ', [';
+                        foreach($advanced_filters['crs']['values'] as $val) {
+                            $criterias .= $val . ',';
+                        }
+                        $criterias .= ']';
+                    }
+                    else {
+                        $criterias = null;
+                    }
+                }
+                else {
+                    $criterias = null;
+                }
+            }
+            else {
+                $criterias = null;
+            }
+            $criterias = str_replace(',]', ']', $criterias);
         }
     }
 }

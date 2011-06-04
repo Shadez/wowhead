@@ -5,80 +5,135 @@
 <div class="rightpanel">
 <div style="float: left">Quality: </div><small><a href="javascript:;" onclick="document.forms['fi'].elements['qu[]'].selectedIndex = -1; return false" onmousedown="return false">clear</a></small>
 <div class="clear"></div>
-<select name="qu[]" size="8" multiple="multiple" class="rightselect" style="background-color: #181818">
-<option value="0" class="q0">Poor</option>
-<option value="1" class="q1">Common</option>
-<option value="2" class="q2">Uncommon</option>
-<option value="3" class="q3">Rare</option>
-<option value="4" class="q4">Epic</option>
-<option value="5" class="q5">Legendary</option>
-<option value="6" class="q6">Artifact</option>
-<option value="7" class="q7">Heirloom</option>
-</select>
+<?php
+$select_info = array(
+    'form' => array(
+        'name' => 'qu[]',
+        'size' => '8',
+        'multiple' => 'multiple',
+        'class' => 'rightselect',
+        'style' => 'background-color: #181818'
+    ),
+    'filter' => array(
+        'filter_key' => 'qu',
+    ),
+    'options' => array(
+        'data' => array(0, 1, 2, 3, 4, 5, 6, 7),
+        'class' => 'q%d'
+    ),
+    'locale' => array(
+        'string_key' => 'template_item_quality_%d'
+    )
+);
+echo WoW_Template::GetSelectForm($select_info);
+?>
 </div>
 
 <div class="rightpanel2">
 <div style="float: left">Slot: </div><small><a href="javascript:;" onclick="document.forms['fi'].elements['sl[]'].selectedIndex = -1; return false" onmousedown="return false">clear</a></small>
 <div class="clear"></div>
-<select name="sl[]" size="7" multiple="multiple" class="rightselect">
-<option value="16">Back</option>
-<option value="18">Bag</option>
-<option value="5">Chest</option>
-<option value="8">Feet</option>
-<option value="11">Finger</option>
-<option value="10">Hands</option>
-<option value="1">Head</option>
-<option value="23">Held In Off-hand</option>
-<option value="7">Legs</option>
-<option value="21">Main Hand</option>
-<option value="2">Neck</option>
-<option value="22">Off Hand</option>
-<option value="13">One-Hand</option>
-<option value="24">Projectile</option>
-<option value="15">Ranged</option>
-<option value="28">Relic</option>
-<option value="14">Shield</option>
-<option value="4">Shirt</option>
-<option value="3">Shoulder</option>
-<option value="19">Tabard</option>
-<option value="25">Thrown</option>
-<option value="12">Trinket</option>
-<option value="17">Two-Hand</option>
-<option value="6">Waist</option>
-<option value="9">Wrist</option>
-</select>
+<?php
+$select_info = array(
+    'form' => array(
+        'name' => 'sl[]',
+        'size' => '7',
+        'multiple' => 'multiple',
+        'class' => 'rightselect'
+    ),
+    'filter' => array(
+        'filter_key' => 'sl',
+    ),
+    'options' => array(
+        'data' => array(16, 18, 5, 8, 11, 10, 1, 23, 7, 21, 2, 22, 23, 24, 15, 28, 14, 4, 3, 19, 25, 12, 17, 6, 9)
+    ),
+    'locale' => array(
+        'string_key' => 'template_item_invtype_%d'
+    )
+);
+echo WoW_Template::GetSelectForm($select_info);
+?>
 </div>
 
 <table>
 <tr>
 <td>Name: </td>
-<td colspan="2">&nbsp;<input type="text" name="na" size="30" /></td>
+<?php
+$nameVal = WoW::GetFilterValueByKey('na');
+if($nameVal && is_array($nameVal)) {
+    $nameFilter = $nameVal[0];
+}
+else {
+    $nameFilter = null;
+}
+?>
+<td colspan="2">&nbsp;<input type="text" name="na" size="30"<?php echo $nameFilter !== null ? ' value="' . $nameFilter . '"' : null; ?> /></td>
 <td></td>
 </tr><tr>
-<td class="padded">Level: </td><td class="padded">&nbsp;<input type="text" name="minle" maxlength="3" class="smalltextbox2" /> - <input type="text" name="maxle" maxlength="3" class="smalltextbox2" /></td>
-<td class="padded"><table><tr><td>Required level: </td><td>&nbsp;<input type="text" name="minrl" maxlength="2" class="smalltextbox" /> - <input type="text" name="maxrl" maxlength="2" class="smalltextbox" /></td></tr></table></td><td></td>
-</tr><tr><td class="padded">Usable by: </td><td class="padded">&nbsp;<select name="si" style="margin-right: 0.5em">
-<option></option>
-<option value="1">Alliance</option>
-<option value="-1">Alliance only</option>
-<option value="2">Horde</option>
-<option value="-2">Horde only</option>
-<option value="3">Both</option>
-</select>
+<?php
+$minLeVal = WoW::GetFilterValueByKey('minle');
+$maxLeVal = WoW::GetFilterValueByKey('maxle');
+$minLevelFilter = null;
+$maxLevelFilter = null;
+if($minLeVal && is_array($minLeVal)) {
+    $minLevelFilter = $minLeVal[0];
+}
+if($maxLeVal && is_array($maxLeVal)) {
+    $maxLevelFilter = $maxLeVal[0];
+}
+?>
+<td class="padded">Level: </td><td class="padded">&nbsp;<input type="text" name="minle" maxlength="3" class="smalltextbox2"<?php echo $minLevelFilter !== null ? ' value="' . $minLevelFilter . '"':  null; ?> /> - <input type="text" name="maxle" maxlength="3" class="smalltextbox2"<?php echo $maxLevelFilter !== null ? ' value="' . $maxLevelFilter . '"':  null; ?> /></td>
+<?php
+$minReqLeVal = WoW::GetFilterValueByKey('minrl');
+$maxReqLeVal = WoW::GetFilterValueByKey('maxrl');
+$minReqLevelFilter = null;
+$maxReqLevelFilter = null;
+if($minReqLeVal && is_array($minReqLeVal)) {
+    $minReqLevelFilter = $minReqLeVal[0];
+}
+if($maxReqLeVal && is_array($maxReqLeVal)) {
+    $maxReqLevelFilter = $maxReqLeVal[0];
+}
+?>
+<td class="padded"><table><tr><td>Required level: </td><td>&nbsp;<input type="text" name="minrl" maxlength="2" class="smalltextbox"<?php echo $minReqLevelFilter !== null ? ' value="' . $minReqLevelFilter . '"':  null; ?> /> - <input type="text" name="maxrl" maxlength="2" class="smalltextbox"<?php echo $maxReqLevelFilter !== null ? ' value="' . $maxReqLevelFilter . '"':  null; ?> /></td></tr></table></td><td></td>
+</tr><tr><td class="padded">Usable by: </td><td class="padded">&nbsp;
+<?php
+$select_info = array(
+    'form' => array(
+        'name' => 'si',
+        'style' => 'margin-right: 0.5em'
+    ),
+    'filter' => array(
+        'filter_key' => 'si',
+    ),
+    'options' => array(
+        'data' => array('{SKIP}', 1, -1, 2, -2, 3)
+    ),
+    'locale' => array(
+        'string_key' => 'template_item_filters_side_%d'
+    )
+);
+echo WoW_Template::GetSelectForm($select_info);
+?>
 </td>
-<td class="padded"><select name="ub">
-<option></option>
-<option value="6">Death Knight</option>
-<option value="11">Druid</option>
-<option value="3">Hunter</option>
-<option value="8">Mage</option>
-<option value="2">Paladin</option>
-<option value="5">Priest</option>
-<option value="4">Rogue</option>
-<option value="7">Shaman</option>
-<option value="9">Warlock</option>
-<option value="1">Warrior</option>
-</select></td></tr></table>
+<td class="padded">
+<?php
+$select_info = array(
+    'form' => array(
+        'name' => 'ub'
+    ),
+    'filter' => array(
+        'filter_key' => 'ub',
+    ),
+    'options' => array(
+        'data' => array('{SKIP}', 6, 11, 3, 8, 2, 5, 4, 7, 9, 1)
+    ),
+    'locale' => array(
+        'string_key' => 'character_class_%d'
+    )
+);
+echo WoW_Template::GetSelectForm($select_info);
+?>
+</td></tr></table>
 
 <div id="fi_criteria" class="padded criteria"><div></div></div><div><a href="javascript:;" id="fi_addcriteria" onclick="fi_addCriterion(this); return false">Add another filter</a></div>
 
@@ -116,7 +171,7 @@
 
 <div class="clear"></div><div class="padded">Group by:<input type="radio" name="gb" value="" id="gb-none" checked="checked" /><label for="gb-none">None</label><input type="radio" name="gb" value="1" id="gb-slot" /><label for="gb-slot">Slot</label><input type="radio" name="gb" value="2" id="gb-level" /><label for="gb-level">Level</label></div><div class="clear"></div>
 
-<div class="padded"></div><input type="submit" value="Apply filter" />
+<div class="padded"></div><input type="submit" value="Apply filter" /><?php echo isset($_GET['filter']) ? sprintf('<input type="button" value="Remove filter" onclick="location = \'%s/items\'" />', WoW::GetWoWPath()) : null; ?>
 
 <input type="hidden" name="upg" />
 
@@ -126,8 +181,16 @@
 
 <script type="text/javascript">//<![CDATA[
 fi_init('items');
-fi_setCriteria([92],[1],['0']);
-fi_extraCols = [92];
+<?php
+$criterias = null;
+$extraCols = null;
+WoW::BuildAdvancedFiltersInfo($criterias, $extraCols);
+if($criterias != null) {
+    echo sprintf('fi_setCriteria(%s);', $criterias);
+}
+?>
+
+fi_extraCols = <?php echo $extraCols ? $extraCols : '[]'; ?>;
 //]]></script>
 
 <div id="lv-items" class="listview"></div>

@@ -60,43 +60,87 @@ Class WoW_Items extends WoW_Abstract {
                 }
                 $val_count = count($filter['values']);
                 switch($filter['key']) {
+                    // Name
+                    case 'na':
+                        if(WoW_Locale::GetLocaleID() > 0) {
+                            $filter_string .= sprintf(" {COND} ((`b`.`name_loc%d` LIKE '%s') OR (`a`.`name` LIKE '%s'))", WoW_Locale::GetLocaleID(), '%' . $filter['values'][0] . '%', '%' . $filter['values'][0] . '%');
+                        }
+                        else {
+                            $filter_string .= sprintf("' {COND} `a`.`name` LIKE '%s'", '%' . $filter['values'][0] . '%');
+                        }
+                        break;
+                    // Quality
                     case 'qu':
                         if($val_count == 1) {
                             $filter_string .= sprintf(' {COND} `a`.`Quality` = %d', $filter['values'][0]);
                         }
                         else {
-                            $filter_string .= ' {COND} `a`.`Quality` IN (';
-                            for($i = 0; $i < $val_count; ++$i) {
-                                $filter_string .= $filter['values'][$i];
-                                if($i < ($val_count-1)) {
-                                    if(isset($filter['values'][$i + 1]) && $filter['values'][$i + 1] != null) {
-                                        $filter_string .= ',';
-                                    }
-                                }
-                            }
-                            $filter_string .= ')';
+                            $filter_string .= ' {COND} `a`.`Quality` IN ( ';
+                            self::ApplyMultiFiltersToString($val_count, $filter, $filter_string);
                         }
                         break;
+                    // Min item level
                     case 'minle':
                         $filter_string .= sprintf(' {COND} `a`.`ItemLevel` >= %d', $filter['values'][0]);
                         break;
+                    // Max item level
                     case 'maxle':
                         $filter_string .= sprintf(' {COND} `a`.`ItemLevel` <= %d', $filter['values'][0]);
                         break;
-                    case 'me':
+                    // At least one?
+                    case 'ma':
                         if($filter['values'][0] == 1) {
                             $andOr = 2;
                         }
                         break;
+                    // Min req level
                     case 'minrl':
                         $filter_string .= sprintf(' {COND} `a`.`RequiredLevel` >= %d', $filter['values'][0]);
                         break;
+                    // Max req level
                     case 'maxrl':
                         $filter_string .= sprintf(' {COND} `a`.`RequiredLevel` <= %d', $filter['values'][0]);
                         break;
+                    // Slot
                     case 'sl':
-                        $filter_string .= sprintf(' {COND} `a`.`InventoryType` = %d', $filter['values'][0]);
-                        WoW_Template::SetPageData('breadcrumb', WoW_Template::GetPageData('breadcrumb') . ',' . $filter['values'][0]);
+                        if($val_count == 1) {
+                            $filter_string .= sprintf(' {COND} `a`.`InventoryType` = %d', $filter['values'][0]);
+                            WoW_Template::SetPageData('breadcrumb', WoW_Template::GetPageData('breadcrumb') . ',' . $filter['values'][0]);
+                        }
+                        else {
+                            $filter_string .= ' {COND} `a`.`InventoryType` IN( ';
+                            self::ApplyMultiFiltersToString($val_count, $filter, $filter_string);
+                        }
+                        break;
+                    // Side
+                    case 'si':
+                        switch($filter['values'][0]) {
+                            case -1:
+                                // Alliance only
+                                $filter_string .= ' {COND} `a`.`AllowableRace` = ' . WoW_Utils::GetFactionBitMaskByFactionId(FACTION_ALLIANCE);
+                                break;
+                            case 1:
+                                // Alliance
+                                $filter_string .= ' {COND} `a`.`AllowableRace` & ' . WoW_Utils::GetFactionBitMaskByFactionId(FACTION_ALLIANCE);
+                                break;
+                            case -2:
+                                // Horde only
+                                $filter_string .= ' {COND} `a`.`AllowableRace` = ' . WoW_Utils::GetFactionBitMaskByFactionId(FACTION_HORDE);
+                                break;
+                            case 2:
+                                // Horde
+                                $filter_string .= ' {COND} `a`.`AllowableRace` & ' . WoW_Utils::GetFactionBitMaskByFactionId(FACTION_HORDE);
+                                break;
+                            default:
+                                // Skip "3" - useable by all
+                                break;
+                        }
+                        break;
+                    // Useable by class ID
+                    case 'ub':
+                        if(!($filter['values'][0] < CLASS_WARRIOR) && !($filter['values'][0] >= MAX_CLASSES)) {
+                            $filter_string .= ' {COND} `a`.`AllowableClass` & ' . WoW_Utils::GetClassBitMaskByClassId($filter['values'][0]);
+                        }
                         break;
                 }
             }
@@ -108,7 +152,20 @@ Class WoW_Items extends WoW_Abstract {
             $filter_string .= sprintf(' {COND} `a`.`subclass` = %d', self::$m_items_subclass);
         }
         $filter_string = str_replace('{COND}', $andOr == 2 ? 'OR' : 'AND', $filter_string);
-        return 'WHERE `a`.`entry` > 0' . $filter_string;
+        $filter_string = substr($filter_string, 5);
+        return $filter_string;
+    }
+    
+    private static function ApplyMultiFiltersToString(&$val_count, &$filter, &$filter_string) {
+        for($i = 0; $i < $val_count; ++$i) {
+            $filter_string .= $filter['values'][$i];
+            if($i < ($val_count-1)) {
+                if(isset($filter['values'][$i + 1]) && $filter['values'][$i + 1] != null) {
+                    $filter_string .= ', ';
+                }
+            }
+        }
+        $filter_string .= ')';
     }
     
     private static function LoadItems() {
@@ -150,7 +207,7 @@ Class WoW_Items extends WoW_Abstract {
         LEFT JOIN `DBPREFIX_icons` AS `c` ON `c`.`displayid` = `a`.`displayid`
         %s
         ORDER BY `ItemLevel` DESC
-        LIMIT 200", 'Flags2', WoW_Locale::GetLocaleID() > 0 ? sprintf('`b`.`name_loc%d` AS `name_loc`,', WoW_Locale::GetLocaleID()) : null, $filter);
+        LIMIT 200", 'Flags2', WoW_Locale::GetLocaleID() > 0 ? sprintf('`b`.`name_loc%d` AS `name_loc`,', WoW_Locale::GetLocaleID()) : null, $filter != null ? 'WHERE ' . $filter : null);
     }
     
     private static function LoadItem() {

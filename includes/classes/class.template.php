@@ -270,5 +270,28 @@ Class WoW_Template {
         }
         return $title['originalTitle'];
     }
+    
+    public static function GetSelectForm($params) {
+        $html = '<select';
+        foreach($params['form'] as $fItem => $fValue) {
+            $html .= sprintf(' %s="%s"', $fItem, $fValue);
+        }
+        $html .= '>';
+        $filter_value = WoW::GetFilterValueByKey($params['filter']['filter_key']);
+        foreach($params['options']['data'] as $option) {
+            if($option === '{SKIP}') {
+                $html .= '<option></option>';
+                continue;
+            }
+            $selectedOption = false;
+            // Check current filter
+            if(is_array($filter_value) && in_array($option, $filter_value)) {
+                $selectedOption = true;
+            }
+            $html .= sprintf('<option value="%d"%s%s>%s</option>', $option, isset($params['options']['class']) ? sprintf(' class="%s"', sprintf($params['options']['class'], $option)) : null, $selectedOption ? ' selected="selected"' : null, WoW_Locale::GetString(sprintf($params['locale']['string_key'], $option)));
+        }
+        $html .= '</select>';
+        return $html;
+    }
 }
 ?>

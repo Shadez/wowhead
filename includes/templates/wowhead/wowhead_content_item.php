@@ -168,6 +168,10 @@ if(is_array($questRewards)) {
             $quest['MinLevel'],
             3 // [PH]
         );
+        if($current < $count) {
+            echo ',';
+        }
+        ++$current;
     }
     echo ']});';
 }

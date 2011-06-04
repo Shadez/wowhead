@@ -186,6 +186,8 @@ Class WoW_DatabaseHandler {
             for($i = 1; $i < $numArgs; $i++) {
                 if(is_string($funcArgs[$i])) {
                     $funcArgs[$i] = addslashes($funcArgs[$i]);
+                    // LIKE cases
+                    $funcArgs[$i] = str_replace(array("\'%", "%\'"), array("'%", "%'"), $funcArgs[$i]);
                 }
                 if(is_array($funcArgs[$i])) {
                     $funcArgs[$i] = $this->ConvertArray($funcArgs[$i]);
