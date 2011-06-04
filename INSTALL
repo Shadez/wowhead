@@ -9,3 +9,5 @@
       
    to your correct path.
 6) Upload SQLs from sql/wowhead_rXX.7z archive into WORLD(!) database (mangos, for example).
+7) Upload all necessary SQL updates from sql/updates folder.
+8) If there're some files in "static_updates" folder, copy them to your unzipped static files folder.
