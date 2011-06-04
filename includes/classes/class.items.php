@@ -713,18 +713,45 @@ Class WoW_Items extends WoW_Abstract {
     }
     
     public static function GetBasicItemInfo($entry) {
-        return DB::World()->selectRow("
-        SELECT
-        `a`.`entry`,
-        `a`.`name`,
-        `a`.`displayid`,
-        `a`.`Quality` AS `quality`,
-        %s
-        `b`.`icon`
-        FROM `item_template` AS `a`
-        LEFT JOIN `DBPREFIX_icons` AS `b` ON `b`.`displayid` = `a`.`displayid`
-        %s
-        WHERE `a`.`entry` = %d", WoW_Locale::GetLocaleID() != LOCALE_EN ? sprintf('`c`.`name_loc%d` AS `name_loc`,', WoW_Locale::GetLocaleID()) : null, WoW_Locale::GetLocaleID() != LOCALE_EN ? 'LEFT JOIN `locales_item` AS `c` ON `c`.`entry` = `a`.`entry`' : null, $entry);
+        if(!$entry) {
+            return false;
+        }
+        if(is_array($entry)) {
+            return DB::World()->select("
+            SELECT
+            `a`.`entry`,
+            `a`.`name`,
+            `a`.`displayid`,
+            `a`.`Quality` AS `quality`,
+            `b`.`icon`,
+            %s
+            FROM `item_template` AS `a`
+            LEFT JOIN `DBPREFIX_icons` AS `b` ON `b`.`displayid` = `a`.`displayid`
+            %s
+            WHERE `a`.`entry` IN (%s)", 
+                WoW_Locale::GetLocaleID() != LOCALE_EN ? sprintf('`c`.`name_loc%d` AS `name_loc`', WoW_Locale::GetLocaleID()) : 'NULL', 
+                WoW_Locale::GetLocaleID() != LOCALE_EN ? 'LEFT JOIN `locales_item` AS `c` ON `c`.`entry` = `a`.`entry`' : null,
+                $entry
+            );
+        }
+        else {
+            return DB::World()->selectRow("
+            SELECT
+            `a`.`entry`,
+            `a`.`name`,
+            `a`.`displayid`,
+            `a`.`Quality` AS `quality`,
+            `b`.`icon`,
+            %s
+            FROM `item_template` AS `a`
+            LEFT JOIN `DBPREFIX_icons` AS `b` ON `b`.`displayid` = `a`.`displayid`
+            %s
+            WHERE `a`.`entry` IN (%s)", 
+                WoW_Locale::GetLocaleID() != LOCALE_EN ? sprintf('`c`.`name_loc%d` AS `name_loc`,', WoW_Locale::GetLocaleID()) : 'NULL', 
+                WoW_Locale::GetLocaleID() != LOCALE_EN ? 'LEFT JOIN `locales_item` AS `c` ON `c`.`entry` = `a`.`entry`' : null,
+                $entry
+            );
+        }
     }
     
     public static function GetDropCreaturesSource($rebuild = false) {
@@ -889,6 +916,9 @@ Class WoW_Items extends WoW_Abstract {
                 $creature['areaID'] = $zone_info['area'];
                 unset($zone_info);
             }
+            // Set reactions
+            $creature['react_a'] = WoW_Utils::IsFriendlyForFaction($creature['faction_A'], FACTION_ALLIANCE);
+            $creature['react_h'] = WoW_Utils::IsFriendlyForFaction($creature['faction_H'], FACTION_HORDE);
             unset($creature['map'], $creature['pos_x'], $creature['pos_y'], $creature['KillCredi1'], $creature['KillCredi2'], $creature['guid']);
             $creatures[] = $creature;
             $added_creatures[] = $creature['entry'];
@@ -1095,6 +1125,107 @@ Class WoW_Items extends WoW_Abstract {
         self::$m_item_source['achievementsCriteria'] = $achievements_criteria;
         unset($achievements_criteria);
         return self::$m_item_source['achievementsCriteria'];
+    }
+    
+    public function GetVendorsSource($rebuild = false) {
+        if(!self::$m_item) {
+            return false;
+        }
+        if(isset(self::$m_item_source['vendors']) && is_array(self::$m_item_source['vendors']) && !$rebuild) {
+            return self::$m_item_source['vendors'];
+        }
+        $vendors_count = DB::World()->selectCell("SELECT COUNT(*) FROM `npc_vendor` WHERE `item` = %d", self::$m_item->entry);
+        if($vendors_count == 0) {
+            return false;
+        }
+        $vendors_source = DB::World()->select("
+        SELECT
+        `a`.*,
+        `b`.`name`,
+        `b`.`subname`,
+        `b`.`faction_A`,
+        `b`.`faction_H`,
+        `b`.`minlevel`,
+        `b`.`maxlevel`,
+        `b`.`rank`,
+        `b`.`type`,
+        `c`.`map`,
+        `c`.`position_x`,
+        `c`.`position_y`,
+        `d`.*,
+        %s
+        FROM `npc_vendor` AS `a`
+        LEFT JOIN `creature_template` AS `b` ON `b`.`entry` = `a`.`entry`
+        LEFT JOIN `creature` AS `c` ON `c`.`id` = `a`.`entry`
+        LEFT JOIN `DBPREFIX_extended_cost` AS `d` ON `d`.`id` = ABS(`a`.`ExtendedCost`)
+        %s
+        WHERE `a`.`item` = %d
+        LIMIT 200",
+            WoW_Locale::GetLocaleID() != LOCALE_EN ? sprintf('`e`.`name_loc%d` AS `name_loc`, `e`.`subname_loc%d` AS `subname_loc`', WoW_Locale::GetLocaleID(), WoW_Locale::GetLocaleID()) : 'NULL',
+            WoW_Locale::GetLocaleID() != LOCALE_EN ? 'LEFT JOIN `locales_creature` AS `e` ON `e`.`entry` = `a`.`entry`' : null,
+            self::$m_item->entry
+        );
+        if(!$vendors_source) {
+            return false;
+        }
+        $vendors = array();
+        $added_vendors = array();
+        $added_items = array();
+        foreach($vendors_source as $vendor) {
+            if(in_array($vendor['entry'], $added_vendors)) {
+                continue;
+            }
+            // Find zone
+            $vendor['areaName'] = null;
+            $vendor['areaID'] = 0;
+            $zone_info = DB::World()->selectRow("
+            SELECT
+            `a`.`id`,
+            `a`.`area`,
+            `b`.`name_en` AS `areaName_original`,
+            `b`.`name_%s` AS `areaName_locale`
+            FROM `DBPREFIX_zones` AS `a`
+            JOIN `DBPREFIX_areas` AS `b` ON `b`.`id` = `a`.`area`
+            WHERE `a`.`map` = %d AND `a`.`y_min` >= %d AND `a`.`y_max` <= %d AND `a`.`x_min` >= %d AND `a`.`x_max` <= %d
+            LIMIT 1",
+            WoW_Locale::GetLocale(),
+            $vendor['map'], $vendor['position_y'], $vendor['position_y'], $vendor['position_x'], $vendor['position_x']);
+            if(is_array($zone_info)) {
+                $vendor['areaID'] = $zone_info['area'];
+                $vendor['areaName'] = (WoW_Locale::GetLocaleID() != LOCALE_EN && $zone_info['areaName_locale'] != null) ? $zone_info['areaName_locale'] : $zone_info['areaName_original'];
+            }
+            $vendor['react_a'] = WoW_Utils::IsFriendlyForFaction($vendor['faction_A'], FACTION_ALLIANCE);
+            $vendor['react_h'] = WoW_Utils::IsFriendlyForFaction($vendor['faction_H'], FACTION_HORDE);
+            if(isset($vendor['name_loc']) && WoW_Locale::GetLocaleID() != LOCALE_EN && $vendor['name_loc'] != null) {
+                $vendor['name'] = $vendor['name_loc'];
+                $vendor['subname'] = $vendor['subname_loc']; // No check required
+            }
+            $vendor['ext_cost'] = '[';
+            $vendor['ext_cost_items_id'] = array();
+            for($i = 1; $i < 6; ++$i) {
+                if($vendor['item' . $i] > 0 && $vendor['item' . $i . 'count'] > 0) {
+                    $vendor['ext_cost'] .= sprintf('[%d, %d],', $vendor['item' . $i], $vendor['item' . $i . 'count']);
+                    if(!in_array($vendor['item' . $i], $added_items)) {
+                        $vendor['ext_cost_items_id'][] = $vendor['item' . $i];
+                        $added_items[] = $vendor['item' . $i];
+                    }
+                }
+            }
+            if(is_array($vendor['ext_cost_items_id'])) {
+                $vendor['ext_cost_items'] = self::GetBasicItemInfo($vendor['ext_cost_items_id']);
+            }
+            else {
+                $vendor['ext_cost_items'] = array();
+            }
+            unset($vendor['ext_cost_items_id']);
+            $vendor['ext_cost'] .= ']';
+            $vendor['ext_cost'] = str_replace(',]', ']', $vendor['ext_cost']);
+            $added_vendors[] = $vendor['entry'];
+            $vendors[] = $vendor;
+        }
+        self::$m_item_source['vendors'] = $vendors;
+        unset($vendors, $vendor);
+        return self::$m_item_source['vendors'];
     }
 }
 ?>

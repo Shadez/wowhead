@@ -793,5 +793,15 @@ Class WoW_Utils {
         }
         return $bitMask;
     }
+    
+    /**
+     * Wrong function!
+     **/
+    public function IsFriendlyForFaction($bitmask, $faction) {
+        if(($bitmask & self::GetFactionBitMaskByFactionId($faction)) != 0) {
+            return false;
+        }
+        return true;
+    }
 }
 ?>

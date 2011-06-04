@@ -40,6 +40,21 @@ $.extend(true, g_items, _);
 _ = g_items;
 _[<?php echo $proto->entry; ?>].tooltip_enus = '<?php echo $proto->tooltip; ?>';
 <?php
+$vendors = WoW_Items::GetVendorsSource();
+if(is_array($vendors)) {
+    foreach($vendors as $vendor) {
+        if(isset($vendor['ext_cost_items']) && is_array($vendor['ext_cost_items'])) {
+            foreach($vendor['ext_cost_items'] as $item) {
+                echo sprintf('_[%d]={name_enus:\'%d\',icon:[\'%s\',\'%s\']};', $item['entry'], (WoW_Locale::GetLocaleID() != LOCALE_EN && isset($item['name_loc']) && $item['name_loc'] != null) ? $item['name_loc'] : $item['name'], $item['icon'], $item['icon']);
+            }
+        }
+    }
+}
+?>
+//_[395]={name_enus:'Очки справедливости',icon:['pvecurrency-justice','pvecurrency-justice']};
+//_[241]={name_enus:'Печать чемпиона',icon:['ability_paladin_artofwar','ability_paladin_artofwar']};
+$.extend(true, g_gatheredcurrencies, _);
+<?php
 $achievementsCriteria = WoW_Items::GetAchievementsCriteria();
 if(is_array($achievementsCriteria)) {
     echo 'var _ = {};';
@@ -125,6 +140,34 @@ if($proto->faction >= FACTION_HORDE) {
 <script type="text/javascript">//<![CDATA[
 var tabsRelated = new Tabs({parent: $WH.ge('jkbfksdbl4'), trackable: 'Item'});
 <?php
+if(is_array($vendors)) {
+    $count = count($vendors);
+    echo 'new Listview({template: \'npc\', id: \'sold-by\', name: LANG.tab_soldby, tabs: tabsRelated, parent: \'lkljbjkb574\', hiddenCols: [\'level\', \'type\'], extraCols: [Listview.extraCols.stock, Listview.extraCols.cost], data: [';
+    $current = 1;
+    foreach($vendors as $vendor) {
+        echo sprintf('{"classification":%d,"id":%d,"location":[%d],"maxlevel":%d,"minlevel":%d,"name":"%s","react":[%d,%d],"tag":"%s","type":%d,stock:%d,cost:[0,%s,[]]}',
+            $vendor['rank'],
+            $vendor['entry'],
+            $vendor['areaID'],
+            $vendor['maxlevel'],
+            $vendor['minlevel'],
+            str_replace('"', '\"', $vendor['name']),
+            $vendor['react_a'] ? 1 : -1,
+            $vendor['react_h'] ? 2 : -1,
+            str_replace('"', '\"', $vendor['subname']),
+            $vendor['type'],
+            $vendor['maxcount'] == 0 ? -1 : $vendor['maxcount'],
+            $vendor['ext_cost']
+        );
+        if($current < $count) {
+            echo ',';
+        }
+        ++$current;
+    }
+    echo ']});
+';
+}
+
 $dropCreatures = WoW_Items::GetDropCreaturesSource();
 if(is_array($dropCreatures)) {
     $count = count($dropCreatures['creatures']);
@@ -139,7 +182,8 @@ if(is_array($dropCreatures)) {
             $creature['level'] == '??' ? 9999 : $creature['minlevel'],
             $creature['level'] == '??' ? 9999 : $creature['maxlevel'],
             str_replace('"', '\"', $creature['name']),
-            -1, -1,
+            $creature['react_a'] ? 1 : -1,
+            $creature['react_h'] ? 2 : -1,
             $creature['type'],
             20,
             100
@@ -150,7 +194,8 @@ if(is_array($dropCreatures)) {
         }
         ++$current;
     }
-    echo ']});';
+    echo ']});
+';
 }
 if(is_array($questRewards)) {
     $count = count($questRewards);
@@ -173,7 +218,8 @@ if(is_array($questRewards)) {
         }
         ++$current;
     }
-    echo ']});';
+    echo ']});
+';
 }
 
 if(is_array($achievementsCriteria)) {
@@ -196,7 +242,8 @@ if(is_array($achievementsCriteria)) {
         }
         ++$current;
     }
-    echo ']});';
+    echo ']});
+';
 }
 ?>
 new Listview({template: 'comment', id: 'comments', name: LANG.tab_comments, tabs: tabsRelated, parent: 'lkljbjkb574', data: lv_comments0});
