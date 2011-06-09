@@ -723,6 +723,8 @@ Class WoW_Items extends WoW_Abstract {
             `a`.`name`,
             `a`.`displayid`,
             `a`.`Quality` AS `quality`,
+            `a`.`SellPrice` AS `sellprice`,
+            `a`.`BuyPrice` AS `buyprice`,
             `b`.`icon`,
             %s
             FROM `item_template` AS `a`
@@ -741,12 +743,14 @@ Class WoW_Items extends WoW_Abstract {
             `a`.`name`,
             `a`.`displayid`,
             `a`.`Quality` AS `quality`,
+            `a`.`SellPrice` AS `sellprice`,
+            `a`.`BuyPrice` AS `buyprice`,
             `b`.`icon`,
             %s
             FROM `item_template` AS `a`
             LEFT JOIN `DBPREFIX_icons` AS `b` ON `b`.`displayid` = `a`.`displayid`
             %s
-            WHERE `a`.`entry` IN (%s)", 
+            WHERE `a`.`entry` = %d", 
                 WoW_Locale::GetLocaleID() != LOCALE_EN ? sprintf('`c`.`name_loc%d` AS `name_loc`,', WoW_Locale::GetLocaleID()) : 'NULL', 
                 WoW_Locale::GetLocaleID() != LOCALE_EN ? 'LEFT JOIN `locales_item` AS `c` ON `c`.`entry` = `a`.`entry`' : null,
                 $entry

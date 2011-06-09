@@ -244,13 +244,18 @@ Class WoW_Template {
             case 'error':
                 return sprintf('%s%s', WoW_Locale::GetString('template_404_title'), $onlyPage ? null : sprintf(' - %s', WoWConfig::$SiteTitle));
             case 'achievements':
-                return sprintf('%s%s', WoW_Locale::GetString('template_achievements_title'), $onlyPage ? null : ' - World of Warcraft');case 'achievements':
+                return sprintf('%s%s', WoW_Locale::GetString('template_achievements_title'), $onlyPage ? null : ' - World of Warcraft');
             case 'achievement':
-               return sprintf('%s%s', WoW_Locale::GetString('template_achievement_title'), $onlyPage ? null : ' - World of Warcraft');case 'achievements':
+               return sprintf('%s%s', WoW_Locale::GetString('template_achievement_title'), $onlyPage ? null : ' - World of Warcraft');
             case 'items':
                 return sprintf('%s%s', WoW_Locale::GetString('template_items_title'), $onlyPage ? null : ' - World of Warcraft');
             case 'item':
                 return sprintf('%s - %s%s', WoW_Template::GetPageData('item_name'), WoW_Locale::GetString('template_item_title'), $onlyPage ? null : ' - World of Warcraft');
+            case 'quests':
+                return sprintf('%s%s', WoW_Locale::GetString('template_quests_title'), $onlyPage ? null : ' - World of Warcraft');
+            case 'quest':
+                return sprintf('%s - %s%s', WoW_Template::GetPageData('quest_name'), WoW_Locale::GetString('template_quest_title'), $onlyPage ? null : ' - World of Warcraft');
+            
             default:
                 return sprintf('%s: %s', WoWConfig::$SiteTitle, self::GetRandomTitle());
         }

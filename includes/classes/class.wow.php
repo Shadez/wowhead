@@ -422,6 +422,8 @@ Class WoW {
     
     private static function InitQuests() {
         self::AssignTemplatePageIndex(array('quests', 'quest'));
+        WoW_Template::SetPageData('activeTab', 0);
+        WoW_Quests::InitPage(WoW_Template::GetPageIndex(), self::GetPageAction());
     }
     
     private static function InitRaces() {
@@ -484,6 +486,8 @@ Class WoW {
             case 'weight-presets.zones':
                 $js_contents = file_get_contents('data/weight-presets.zones-' . WoW_Locale::GetLocaleID() . '.js');
                 break;
+            case 'zones':
+                $js_contents = file_get_contents('data/zones-' . WoW_Locale::GetLocaleID() . '.js');
         }
         WoW_Template::SetPageData('js-data', $js_contents); // Must be freed after using!
     }

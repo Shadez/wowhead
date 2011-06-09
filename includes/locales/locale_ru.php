@@ -88,6 +88,8 @@ $WoW_Locale = array(
     'template_achievement_title' => 'Достижение',
     'template_items_title' => 'Предметы',
     'template_item_title' => 'Предмет',
+    'template_quests_title' => 'Задания',
+    'template_quest_title' => 'Задание',
     
     'template_item_bonding_1' => 'Персональный при поднятии',
     'template_item_bonding_2' => 'Персональный при надевании',

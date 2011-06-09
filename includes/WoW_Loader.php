@@ -49,7 +49,8 @@ $custom_classes_files = array(
     array('title' => 'Achievements Class File', 'path' => 'classes/class.achievements.php', 'type' => 'ACHIEVEMENTS'),
     array('title' => 'Items Class File', 'path' => 'classes/class.items.php', 'type' => 'ITEMS'),
     array('title' => 'Utils Class File', 'path' => 'classes/class.utils.php', 'type' => 'DATABASE'),
-    array('title' => 'Search Class File', 'path' => 'classes/class.search.php', 'type' => 'SEARCH')
+    array('title' => 'Search Class File', 'path' => 'classes/class.search.php', 'type' => 'SEARCH'),
+    array('title' => 'Quests Class File', 'path' => 'classes/class.quests.php', 'type' => 'QUESTS')
 );
 // Data
 $data_files = array(

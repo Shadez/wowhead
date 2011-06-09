@@ -88,6 +88,8 @@ $WoW_Locale = array(
     'template_achievement_title' => 'Achievement',
     'template_items_title' => 'Items',
     'template_item_title' => 'Item',
+    'template_quests_title' => 'Quests',
+    'template_quest_title' => 'Quest',
 
     'armor_cloth' => 'Cloth',
     'armor_leather' => 'Leather',
