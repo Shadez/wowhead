@@ -28,47 +28,44 @@ define('WOW_DIRECTORY', dirname(dirname(__FILE__)));
 if(!defined('WOW_DIRECTORY') || !WOW_DIRECTORY) {
     die('<strong>Fatal Error</strong>: unable to detect directory for system files!');
 }
-// Load defines
-include(WOW_DIRECTORY . '/includes/revision_nr.php');
-include(WOW_DIRECTORY . '/includes/SharedDefines.php');
-// Load configs
-include(WOW_DIRECTORY . '/includes/configs/DatabaseConfig.php');
-include(WOW_DIRECTORY . '/includes/configs/WoWConfig.php');
-// Load libraries
-include(WOW_DIRECTORY . '/includes/classes/libs/mysqldatabase.php');
-include(WOW_DIRECTORY . '/includes/classes/libs/log.php');
-// Load classes
-include(WOW_DIRECTORY . '/includes/classes/class.db.php');
-include(WOW_DIRECTORY . '/includes/classes/class.wow.php');
-include(WOW_DIRECTORY . '/includes/classes/class.locale.php');
-include(WOW_DIRECTORY . '/includes/classes/class.template.php');
-
-include(WOW_DIRECTORY . '/includes/classes/class.itemprototype.php');
-include(WOW_DIRECTORY . '/includes/classes/class.abstract.php');
-include(WOW_DIRECTORY . '/includes/classes/class.achievements.php');
-include(WOW_DIRECTORY . '/includes/classes/class.items.php');
-include(WOW_DIRECTORY . '/includes/classes/class.utils.php');
-include(WOW_DIRECTORY . '/includes/classes/class.search.php');
-
-// Load data
-include(WOW_DIRECTORY . '/includes/data/data.classes.php');
-include(WOW_DIRECTORY . '/includes/data/data.races.php');
-/*
-// Perform log in (if required)
-if(isset($_GET['login']) || preg_match('/\?login/', $_SERVER['REQUEST_URI'])) {
-    header('Location: ' . WoW::GetWoWPath() . '/login/');
-    exit;
+// Core classes definitions
+$core_files = array(
+    array('title' => 'Revision Holder File', 'path' => 'revision_nr.php', 'type' => 'CORE'),
+    array('title' => 'Core Defines File', 'path' => 'SharedDefines.php', 'type' => 'CORE'),
+    array('title' => 'Database Configuration File', 'path' => 'configs/DatabaseConfig.php', 'type' => 'CORE'),
+    array('title' => 'Core Configuratin File', 'path' => 'configs/WoWConfig.php', 'type' => 'CORE'),
+    array('title' => 'MySQL Database Class File', 'path' => 'classes/libs/mysqldatabase.php', 'type' => 'CORE'),
+    array('title' => 'Debug Log Class File', 'path' =>  'classes/libs/log.php', 'type' => 'CORE'),
+    
+    array('title' => 'Database Class File', 'path' =>  'classes/class.db.php', 'type' => 'CORE'),
+    array('title' => 'Core Class File', 'path' =>  'classes/class.wow.php', 'type' => 'CORE'),
+    array('title' => 'Locale Manager Class File', 'path' =>  'classes/class.locale.php', 'type' => 'CORE'),
+    array('title' => 'Template Manager Class File', 'path' =>  'classes/class.template.php', 'type' => 'CORE')
+);
+// Custom classes definitions
+$custom_classes_files = array(
+    array('title' => 'ItemPrototype Class File', 'path' => 'classes/class.itemprototype.php', 'type' => 'ITEMS'),
+    array('title' => 'Abstract WoW Object Class File', 'path' => 'classes/class.abstract.php', 'type' => 'DATABASE'),
+    array('title' => 'Achievements Class File', 'path' => 'classes/class.achievements.php', 'type' => 'ACHIEVEMENTS'),
+    array('title' => 'Items Class File', 'path' => 'classes/class.items.php', 'type' => 'ITEMS'),
+    array('title' => 'Utils Class File', 'path' => 'classes/class.utils.php', 'type' => 'DATABASE'),
+    array('title' => 'Search Class File', 'path' => 'classes/class.search.php', 'type' => 'SEARCH')
+);
+// Data
+$data_files = array(
+    array('title' => 'Character Classes File', 'path' => 'data/data.classes.php', 'type' => 'DATABASE'),
+    array('title' => 'Character Races File', 'path' => 'data/data.races.php', 'type' => 'DATABASE'),
+);
+// Classes loader
+if(!@include(WOW_DIRECTORY . '/includes/ClassesLoader.php')) {
+    die('<strong>Fatal Error:</strong> ClassesLoader.php file was not found, unable to run!');
 }
-// Perform logout (if required)
-if(isset($_GET['logout']) || preg_match('/\?logout/', $_SERVER['REQUEST_URI'])) {
-    // $_SERVER['REQUEST_URI'] check is required for mod_rewrited URL cases.
-    WoW_Account::PerformLogout();
-    header('Location: ' . WoW::GetWoWPath() . '/');
-    exit;
-}
-// Initialize account (if user already logged in we need to re-build his info from session data)
-WoW_Account::Initialize();
-*/
+// Load core files
+LoadClasses($core_files);
+// Load custom classes
+LoadClasses($custom_classes_files);
+// Load Data
+LoadClasses($data_files);
 // Locale
 if(isset($_GET['locale'])) {
     $_SESSION['wow_locale'] = $_GET['locale'];
@@ -96,13 +93,7 @@ else {
 WoW_Log::Initialize(WoWConfig::$UseLog, WoWConfig::$LogLevel);
 // Load databases configs
 DB::LoadConfigs();
-// Initialize connections to databases
-//DB::ConnectToAllDBs();
 if(isset($_GET['_DISPLAYVERSION_'])) {
     die(WOW_REVISION);
 }
-// RunOnce.
-//define('__RUNONCE__', true);
-//include(WOW_DIRECTORY . '/includes/RunOnce.php');
-//WoW::AddInWoW();
 ?>
