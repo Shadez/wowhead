@@ -25,13 +25,23 @@ function LoadClasses(&$classes) {
         die('<strong>Fatal Error:</strong> no classes found!');
     }
     $errorMessage = null;
+    $event_operations = array();
     foreach($classes as $file) {
         if(!@include(WOW_DIRECTORY . '/includes/' . $file['path'])) {
-            $errorMessage .= '<strong>Fatal Error:</strong> Unable to load <b>' . $file['title'] . '</b> (includes/' . $file['path']. ')!<br />';
+            $errorMessage .= '<li><strong>Fatal Error:</strong> Unable to load <b>' . $file['title'] . '</b> (includes/' . $file['path']. ')!</li>';
+        }
+        else {
+            if(isset($file['postLoadEventClass'], $file['postLoadEventMethod'])) {
+                $event_operations[] = array($file['postLoadEventClass'], $file['postLoadEventMethod']);
+            }
         }
     }
     if($errorMessage != null) {
-        die('<em><strong style="color:#ff0000">Some error(s) appeared during classes loading:</strong></em><br /><br />' . $errorMessage . '<br />Please, make sure that you have full CMS package or report on <a href="https://github.com/Shadez/' . PROJECT_NAME . '/issues">GitHub.com</a>.');
+        die('<em><strong style="color:#ff0000">Some error(s) appeared during classes loading:</strong></em><ul>' . $errorMessage . '</ul>Please, make sure that you have full CMS package or report on <a href="https://github.com/Shadez/' . PROJECT_NAME . '/issues">GitHub.com</a>.');
+    }
+    // Perform operations
+    foreach($event_operations as $operation) {
+        $operation[0]::$operation[1]();
     }
     return true;
 }

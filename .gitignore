@@ -1,0 +1,3 @@
+includes/configs/WoWConfig.php
+includes/configs/DatabaseConfig.php
+_debug/tmp.dbg

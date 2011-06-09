@@ -24,6 +24,26 @@ Class WoW {
     private static $m_action = null;
     private static $m_pageId = null;
     
+    public function SelfTests() {
+        // Core checks
+        $errorMessage = null;
+        // Database revision check
+        $database_revision = DB::World()->selectCell("SELECT `revision` FROM `DBPREFIX_db_version` LIMIT 1");
+        if($database_revision != DB_VERSION) {
+            $errorMessage .= '<li>You have outdated DB (current revision: ' . DB_VERSION . ', your revision: ' . $database_revision . '). Please, update project DB with SQL updates from "sql/updates" folder.</li>';
+        }
+        // Check static folder
+        if(!preg_match('/http\:\/\//', WoWConfig::$Static_Url)) {
+            if(!@file_exists(WOW_DIRECTORY . WoWConfig::$Static_Url . '/favicon.ico') && !@file_exists(WoWConfig::$Static_Url . '/favicon.ico')) {
+                $errorMessage .= '<li>Please, check your WoWConfig::$Static_Url parameter, seems that you have wrong value.</li>';
+            }
+        }
+        if($errorMessage != null) {
+            die('<em><strong style="color:#ff0000">Some error(s) appeared during core self testing:</strong></em><ul>' . $errorMessage . '</ul>Please, solve this problem(s) and refresh this page again.');
+        }
+        return true;
+    }
+    
     public static function InitWoW() {
         if(isset($_GET['error'])) {
             $errorCode = (int) $_GET['error'];

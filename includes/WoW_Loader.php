@@ -37,8 +37,8 @@ $core_files = array(
     array('title' => 'MySQL Database Class File', 'path' => 'classes/libs/mysqldatabase.php', 'type' => 'CORE'),
     array('title' => 'Debug Log Class File', 'path' =>  'classes/libs/log.php', 'type' => 'CORE'),
     
-    array('title' => 'Database Class File', 'path' =>  'classes/class.db.php', 'type' => 'CORE'),
-    array('title' => 'Core Class File', 'path' =>  'classes/class.wow.php', 'type' => 'CORE'),
+    array('title' => 'Database Class File', 'path' =>  'classes/class.db.php', 'type' => 'CORE', 'postLoadEventClass' => 'DB', 'postLoadEventMethod' => 'LoadConfigs'),
+    array('title' => 'Core Class File', 'path' =>  'classes/class.wow.php', 'type' => 'CORE', 'postLoadEventClass' => 'WoW', 'postLoadEventMethod' => 'SelfTests'),
     array('title' => 'Locale Manager Class File', 'path' =>  'classes/class.locale.php', 'type' => 'CORE'),
     array('title' => 'Template Manager Class File', 'path' =>  'classes/class.template.php', 'type' => 'CORE')
 );
@@ -91,8 +91,6 @@ else {
 }
 // Initialize debug log
 WoW_Log::Initialize(WoWConfig::$UseLog, WoWConfig::$LogLevel);
-// Load databases configs
-DB::LoadConfigs();
 if(isset($_GET['_DISPLAYVERSION_'])) {
     die(WOW_REVISION);
 }
