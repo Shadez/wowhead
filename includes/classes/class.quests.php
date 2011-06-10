@@ -153,12 +153,108 @@ Class WoW_Quests extends WoW_Abstract {
             'Title', 'Details', 'Objectives', 'OfferRewardText', 'RequestItemsText',
             'EndText', 'CompletedText', 'ObjectiveText1', 'ObjectiveText2', 'ObjectiveText3', 'ObjectiveText4'
         );
-        if(WoW_Locale::GetLocaleID() != LOCALE_EN) {
-            // Try to set localized fields
-            foreach($fields_to_locale as $field) {
+        
+        // Try to set localized fields
+        foreach($fields_to_locale as $field) {
+            if(WoW_Locale::GetLocaleID() != LOCALE_EN) {
                 if(isset(self::$m_quest[$field . '_loc']) && self::$m_quest[$field . '_loc'] != null) {
                     self::$m_quest[$field] = self::$m_quest[$field . '_loc'];
                 }
+            }
+            WoW_Utils::GameStringToHTML(self::$m_quest[$field]);
+        }
+        
+        // Zone?
+        $zone_data = array();
+        if(self::$m_quest['ZoneOrSort'] > 0) {
+            // Find zone
+            $zone_data = DB::World()->selectRow("
+            SELECT
+            `a`.`id`,
+            `a`.`mapID`,
+            `a`.`zoneID`,
+            `a`.`name_en` AS `name_original`,
+            `a`.`name_%s` AS `name_loc`
+            FROM `DBPREFIX_areas` AS `a`
+            WHERE `a`.`id` = %d",
+                WoW_Locale::GetLocale(),
+                self::$m_quest['ZoneOrSort']
+            );
+            if($zone_data) {
+                $zone_data = array(
+                    'id' => $zone_data['id'],
+                    'name' => WoW_Locale::GetLocaleID() != LOCALE_EN ? $zone_data['name_loc'] : $zone_data['name_original']
+                );
+            }
+        }
+        // Find NPC relations (start/end)
+        $quest_relation = array(
+            'start' => 'creature_questrelation',
+            'end'   => 'creature_involvedrelation'
+        );
+        foreach($quest_relation as &$relation) {
+            $table = $relation;
+            $relation = array(
+                'npc' => array(),
+                'zone' => array()
+            );
+            $relation['npc'] = DB::World()->selectRow("
+            SELECT
+            `a`.`id`,
+            `b`.`guid`,
+            `b`.`map`,
+            `b`.`position_x`,
+            `b`.`position_y`,
+            `c`.`name`,
+            `c`.`faction_A`,
+            `c`.`faction_H`,
+            %s
+            FROM `%s` AS `a`
+            LEFT JOIN `creature` AS `b` ON `b`.`id` = `a`.`id`
+            LEFT JOIN `creature_template` AS `c` ON `c`.`entry` = `a`.`id`
+            %s
+            WHERE `a`.`quest` = %d",
+                WoW_Locale::GetLocaleID() != LOCALE_EN ? '`d`.`name_loc' . WoW_Locale::GetLocaleID() . '` AS `name_loc`' : 'NULL',
+                $table,
+                WoW_Locale::GetLocaleID() != LOCALE_EN ? 'LEFT JOIN `locales_creature` AS `d` ON `d`.`entry` = `a`.`id`' : null,
+                self::$m_quest['entry']
+            );
+            if(!$relation['npc']) {
+                $relation = false;
+                continue;
+            }
+            $relation['zone'] = WoW_Utils::GetNpcAreaInfo($relation['npc']['id'], $relation['npc'], true);
+            if(WoW_Locale::GetLocaleID() != LOCALE_EN) {
+                if(isset($relation['npc']['name_loc']) && $relation['npc']['name_loc'] != null) {
+                    $relation['npc']['name'] = $relation['npc']['name_loc'];
+                    unset($relation['npc']['name_loc']);
+                }
+                if(isset($relation['zone']['zoneName_loc']) && $relation['zone']['zoneName_loc'] != null) {
+                    $relation['zone']['zoneName'] = $relation['zone']['zoneName_loc'];
+                    unset($relation['zone']['zoneName_loc']);
+                }
+            }
+        }
+        if(!$quest_relation['start'] && !$quest_relation['end']) {
+            $quest_relation = null;
+        }
+        // Objectives
+        $items_to_add = array();
+        self::$m_quest['ObjectivesText'] = '';
+        self::$m_quest['ObjectivesTextScript'] = '';
+        $obj_item_icon = 1;
+        // Kill %d players
+        if(self::$m_quest['PlayersSlain'] > 0) {
+            self::$m_quest['ObjectivesText'] .= '<tr><th><ul><li><var>&nbsp;</var></li></ul></th><td>' . sprintf(WoW_Locale::GetString('template_quest_obj_players_slain'), self::$m_quest['PlayersSlain']) . '</td></tr>';
+        }
+        // Provided item
+        if(self::$m_quest['SrcItemId'] > 0) {
+            $src_item = WoW_Items::GetBasicItemInfo(self::$m_quest['SrcItemId']);
+            if(is_array($src_item)) {
+                $items_to_add = array_merge($items_to_add, array($src_item));
+                self::$m_quest['ObjectivesText'] .= sprintf('<tr><th align="right" id="iconlist-icon%d"></th><td><span class="q%d"><a href="%s/item=%d">%s</a></span> %s</td></tr>', $obj_item_icon, $src_item['quality'], WoW::GetWoWPath(), $src_item['entry'], $src_item['name'], WoW_Locale::GetString('template_quest_item_provided'));
+                self::$m_quest['ObjectivesTextScript'] .= '$WH.ge(\'iconlist-icon' . $obj_item_icon . '\').appendChild(g_items.createIcon(' . $src_item['entry'] . ', 0, 1))';
+                ++$obj_item_icon;
             }
         }
         // Related items
@@ -263,7 +359,19 @@ Class WoW_Quests extends WoW_Abstract {
                 self::$m_quest[$item['field']]['text'] .= '</table>';
             }
         }
-        $items_info = array_merge($rewItemData, $choiceItemData); // If any item found
+        // Merge items arrays
+        if(is_array($rewItemData) && is_array($choiceItemData)) {
+            $items_info = array_merge($rewItemData, $choiceItemData); // If any item found
+        }
+        elseif(is_array($rewItemData)) {
+            $items_info = $rewItemData;
+        }
+        elseif(is_array($choiceItemData)) {
+            $items_info = $choiceItemData;
+        }
+        if(is_array($items_to_add)) {
+            $items_info = array_merge($items_info, $items_to_add);
+        }
         
         // Find quest in achievement criterias
         $achievements_cr = DB::World()->select("
@@ -294,8 +402,7 @@ Class WoW_Quests extends WoW_Abstract {
             self::GetID()
         );
         $achievements = array();
-        if($achievements_cr) {
-            $achievements = array();
+        if(is_array($achievements_cr)) {
             foreach($achievements_cr as $ach) {
                 $ach['name'] = (WoW_Locale::GetLocaleID() != LOCALE_EN && isset($ach['name_loc']) && $ach['name_loc'] != null) ? $ach['name_loc'] : $ach['name_original'];
                 $ach['desc'] = (WoW_Locale::GetLocaleID() != LOCALE_EN && isset($ach['desc_loc']) && $ach['desc_loc'] != null) ? $ach['desc_loc'] : $ach['desc_original'];
@@ -322,8 +429,13 @@ Class WoW_Quests extends WoW_Abstract {
         self::$m_quest = array(
             'items' => $items_info,
             'quest' => $quest,
-            'achievements' => $achievements
+            'achievements' => $achievements,
+            'zone' => $zone_data,
+            'relations' => $quest_relation
         );
+        //echo '<pre>';
+        //print_r(self::$m_quest);
+        //die;
         unset($quest, $items, $items_info);
     }
     

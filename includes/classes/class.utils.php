@@ -665,16 +665,23 @@ Class WoW_Utils {
         }
     }
     
-    public function GetNpcAreaInfo($entry) {
-        $npc_coordinates = DB::World()->selectRow("SELECT `guid`, `map`, `position_x`, `position_y` FROM `creature` WHERE `id` = %d LIMIT 1", $entry);
+    public function GetNpcAreaInfo($entry, $npc_coordinates = null, $game_points = false) {
+        if(!$npc_coordinates) {
+            $npc_coordinates = DB::World()->selectRow("SELECT `guid`, `map`, `position_x`, `position_y` FROM `creature` WHERE `id` = %d LIMIT 1", $entry);
+        }
         if(!is_array($npc_coordinates)) {
             WoW_Log::WriteLog('%s : creature #%d was not found in `creature` table!', __METHOD__, $entry);
             return false;
         }
-        $area_data = DB::WoW()->selectRow("
+        $area_data = DB::World()->selectRow("
         SELECT
         `a`.`id`,
         `a`.`area`,
+        `a`.`map`,
+        `a`.`y_min`,
+        `a`.`y_max`,
+        `a`.`x_min`,
+        `a`.`x_max`,
         `b`.`name_en` AS `areaName_original`,
         `b`.`name_%s` AS `areaName_locale`
         FROM `DBPREFIX_zones` AS `a`
@@ -682,7 +689,6 @@ Class WoW_Utils {
         WHERE `a`.`map` = %d AND `a`.`y_min` >= %d AND `a`.`y_max` <= %d AND `a`.`x_min` >= %d AND `a`.`x_max` <= %d
         LIMIT 1", WoW_Locale::GetLocale(), $npc_coordinates['map'], $npc_coordinates['position_y'], $npc_coordinates['position_y'], $npc_coordinates['position_x'], $npc_coordinates['position_x']);
         if(!is_array($area_data)) {
-            WoW_Log::WriteLog('%s : area data for creature #%d (GUID: %d) was not found!', __METHOD__, $entry, $npc_coordinates['guid']);
             return false;
         }
         return array(
@@ -694,7 +700,8 @@ Class WoW_Utils {
             'zoneName' => $area_data['areaName_original'],
             'zoneName_loc' => $area_data['areaName_locale'],
             'pos_x' => $npc_coordinates['position_x'],
-            'pos_y' => $npc_coordinates['position_y']
+            'pos_y' => $npc_coordinates['position_y'],
+            'coords' => self::TransformPoints($area_data, $npc_coordinates)
         );
     }
     
@@ -802,6 +809,38 @@ Class WoW_Utils {
             return false;
         }
         return true;
+    }
+    
+    /**
+     * Transforms server coordinates to game points
+     * @author AoWoW Dev Team (Arcano, LordJZ)
+     **/
+    public function TransformPoints($at, $point) {
+        return array(
+            'x' => round(100 - ($point['position_y'] - $at['y_min']) / (($at['y_max'] - $at['y_min']) / 100), 2),
+            'y' => round(100 - ($point['position_x'] - $at['x_min']) / (($at['x_max'] - $at['x_min']) / 100), 2)
+        );
+    }
+    
+    public function GameStringToHTML(&$str) {
+        // Uppercase to lowercase
+        $str = strtr($str, array(
+            '$B'	=> '$b',
+            '$R'	=> '$r',
+            '$C'	=> '$c',
+            '$N'	=> '$n'
+        ));
+        // Single ones
+        $str = strtr($str, array(
+            '$b'	=> '<br />',
+            '$r'	=> htmlspecialchars('<' . WoW_Locale::GetString('template_game_string_race') . '>'),
+            '$c'	=> htmlspecialchars('<' . WoW_Locale::GetString('template_game_string_class') . '>'),
+            '$n'	=> htmlspecialchars('<' . WoW_Locale::GetString('template_game_string_name') . '>'),
+            "\r"	=> '',
+            "\n"	=> ''
+        ));
+        // Gender
+        $str = preg_replace('/\$g(.*?):(.*?);/iu', htmlspecialchars('<$1/$2>'), $str);
     }
 }
 ?>

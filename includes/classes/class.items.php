@@ -717,7 +717,7 @@ Class WoW_Items extends WoW_Abstract {
             return false;
         }
         if(is_array($entry)) {
-            return DB::World()->select("
+            $data = DB::World()->select("
             SELECT
             `a`.`entry`,
             `a`.`name`,
@@ -735,9 +735,17 @@ Class WoW_Items extends WoW_Abstract {
                 WoW_Locale::GetLocaleID() != LOCALE_EN ? 'LEFT JOIN `locales_item` AS `c` ON `c`.`entry` = `a`.`entry`' : null,
                 $entry
             );
+            foreach($data as &$item) {
+                if(isset($item['name_loc']) && $item['name_loc'] != null) {
+                    // GetLocaleID() check is not required here
+                    $item['name'] = $item['name_loc'];
+                    unset($item['name_loc']);
+                }
+            }
+            return $data;
         }
         else {
-            return DB::World()->selectRow("
+            $data = DB::World()->selectRow("
             SELECT
             `a`.`entry`,
             `a`.`name`,
@@ -751,10 +759,16 @@ Class WoW_Items extends WoW_Abstract {
             LEFT JOIN `DBPREFIX_icons` AS `b` ON `b`.`displayid` = `a`.`displayid`
             %s
             WHERE `a`.`entry` = %d", 
-                WoW_Locale::GetLocaleID() != LOCALE_EN ? sprintf('`c`.`name_loc%d` AS `name_loc`,', WoW_Locale::GetLocaleID()) : 'NULL', 
+                WoW_Locale::GetLocaleID() != LOCALE_EN ? sprintf('`c`.`name_loc%d` AS `name_loc`', WoW_Locale::GetLocaleID()) : 'NULL', 
                 WoW_Locale::GetLocaleID() != LOCALE_EN ? 'LEFT JOIN `locales_item` AS `c` ON `c`.`entry` = `a`.`entry`' : null,
                 $entry
             );
+            if(isset($data['name_loc']) && $data['name_loc'] != null) {
+                // GetLocaleID() check is not required here
+                $data['name'] = $data['name_loc'];
+                unset($data['name_loc']);
+            }
+            return $data;
         }
     }
     

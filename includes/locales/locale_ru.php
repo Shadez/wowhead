@@ -83,6 +83,8 @@ $WoW_Locale = array(
     'template_faction_string_0' => 'horde',
     'template_faction_string_1' => 'alliance',
     
+    'template_related' => 'Дополнительная информация',
+    
     'template_404_title' => 'Страница не найдена',
     'template_achievements_title' => 'Достижения',
     'template_achievement_title' => 'Достижение',
@@ -90,6 +92,10 @@ $WoW_Locale = array(
     'template_item_title' => 'Предмет',
     'template_quests_title' => 'Задания',
     'template_quest_title' => 'Задание',
+    
+    'template_game_string_name' => 'имя',
+    'template_game_string_class' => 'класс',
+    'template_game_string_race' => 'раса',
     
     'template_item_bonding_1' => 'Персональный при поднятии',
     'template_item_bonding_2' => 'Персональный при надевании',
@@ -263,5 +269,26 @@ $WoW_Locale = array(
     'template_item_filters_side_2' => 'Орда',
     'template_item_filters_side_-2' => 'Орда только',
     'template_item_filters_side_3' => 'Обе',
+    
+    'template_quest_qf_start' => 'Начало',
+    'template_quest_qf_end' => 'Конец',
+    'template_quest_qf_not_sharable' => 'Не раздается',
+    'template_quest_qf_reqlevel' => 'Требует уровень:',
+    'template_quest_qf_difficulty' => 'Сложность:',
+    'template_quest_item_provided' => '(Прилагается)',
+    'template_quest_description' => 'Описание',
+    'template_quest_completion' => 'Завершение',
+    'template_quest_progress' => 'Прогресс',
+    'template_quest_rewards' => 'Награды',
+    'template_quest_rewards_rewitems' => 'Вы получите:',
+    'template_quest_rewards_choiceitems' => 'Вам дадут возможность выбрать одну из следующих наград:',
+    'template_quest_rewards_maxlevel_money' => '(или %s на ' . MAX_PLAYER_LEVEL . '-м уровне)',
+    'template_quest_gains' => 'Бонус',
+    'template_quest_gains_rewards' => 'По завершении этого задания, вы получите:',
+    'template_quest_gains_xp' => '%s опыта',
+    'template_quest_gains_hp' => '%s очков чести',
+    'template_quest_gains_rep' => '<span>%s</span> репутации с <a href="' . WoW::GetWoWPath() . '/faction=%d">%s</a>',
+    
+    'template_quest_obj_players_slain' => 'Убито игроков&nbsp;(%d)',
 );
 ?>

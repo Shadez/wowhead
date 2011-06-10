@@ -83,6 +83,8 @@ $WoW_Locale = array(
     'template_faction_string_0' => 'horde',
     'template_faction_string_1' => 'alliance',
     
+    'template_related' => 'Related',
+    
     'template_404_title' => 'Page Not Found',
     'template_achievements_title' => 'Achievements',
     'template_achievement_title' => 'Achievement',
@@ -90,6 +92,10 @@ $WoW_Locale = array(
     'template_item_title' => 'Item',
     'template_quests_title' => 'Quests',
     'template_quest_title' => 'Quest',
+    
+    'template_game_string_name' => 'name',
+    'template_game_string_class' => 'class',
+    'template_game_string_race' => 'race',
 
     'armor_cloth' => 'Cloth',
     'armor_leather' => 'Leather',
@@ -266,6 +272,25 @@ $WoW_Locale = array(
     'template_item_filters_side_2' => 'Horde',
     'template_item_filters_side_-2' => 'Horde only',
     'template_item_filters_side_3' => 'Both',
+    
+    'template_quest_qf_start' => 'Start',
+    'template_quest_qf_end' => 'End',
+    'template_quest_qf_not_sharable' => 'Not sharable',
+    'template_quest_qf_reqlevel' => 'Requires level',
+    'template_quest_qf_difficulty' => 'Difficulty',
+    'template_quest_item_provided' => '(Provided)',
+    'template_quest_description' => 'Description',
+    'template_quest_completion' => 'Completion',
+    'template_quest_progress' => 'Progress',
+    'template_quest_rewards' => 'Rewards',
+    'template_quest_rewards_rewitems' => 'You will receive:',
+    'template_quest_rewards_choiceitems' => 'You will be able to choose one of these rewards:',
+    'template_quest_rewards_maxlevel_money' => '(or %s if completed at level ' . MAX_PLAYER_LEVEL . ')',
+    'template_quest_gains' => 'Gains',
+    'template_quest_gains_rewards' => 'Upon completion of this quest you will gain:',
+    'template_quest_gains_xp' => '%s experience',
+    'template_quest_gains_hp' => '%s honor points',
+    'template_quest_gains_rep' => '<span>%s</span> reputation with <a href="' . WoW::GetWoWPath() . '/faction=%d">%s</a>',
 );
 
 ?>

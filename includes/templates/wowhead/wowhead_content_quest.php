@@ -2,6 +2,8 @@
 $quest = null;
 $items = null;
 $achievements = null;
+$zone = null;
+$relations = null;
 $quest_data = WoW_Quests::GetQuest();
 if(isset($quest_data['quest'])) {
     $quest = $quest_data['quest'];
@@ -11,6 +13,12 @@ if(isset($quest_data['items'])) {
 }
 if(isset($quest_data['achievements'])) {
     $achievements = $quest_data['achievements'];
+}
+if(isset($quest_data['zone'])) {
+    $zone = $quest_data['zone'];
+}
+if(isset($quest_data['relations'])) {
+    $relations = $quest_data['relations'];
 }
 ?>
 <script type="text/javascript">//<![CDATA[
@@ -69,30 +77,79 @@ Markup.printHtml("[ul][li]Level: 80[/li][li]Requires level 80[/li][li]Type: Raid
  
 <h1><?php echo $quest['Title']; ?></h1> 
  
-<?php echo $quest['Objectives']; ?>
+<?php
+echo $quest['Objectives'];
+if($quest['ObjectivesText'] != null) {
+    echo '<table class="iconlist">
+    ' . $quest['ObjectivesText'] . '
+    </table>';
+    if($quest['ObjectivesTextScript'] != null) {
+        echo '<script type="text/javascript">//<![CDATA[
+        ' . $quest['ObjectivesTextScript'] . '
+        //]]></script> ';
+    }
+}
+?>
  
 <div id="lksjdowlha"></div>
 
 <div id="fweiuasf"></div>
 
 <div style="clear: left"></div>
-<script type="text/javascript">//<![CDATA[
-var g_mapperData = {};
-var myMapper = new Mapper({parent: 'fweiuasf', objectives: {
-4812: {zone: 'Icecrown Citadel', mappable: 1, levels: {1: [{ type: '1', point: 'start', name: 'Highlord Darion Mograine', coord: [42.8,22.8], coords: [[42.4,22.4],[42.4,22.6],[42.6,22.4],[42.8,22.8]], id: 37120, reactalliance: 1, reacthorde: 1},{ type: '1', point: 'end', name: 'Highlord Darion Mograine', coord: [42.8,22.8], coords: [[42.4,22.4],[42.4,22.6],[42.6,22.4],[42.8,22.8]], id: 37120, reactalliance: 1, reacthorde: 1}]}}
-}, zoneparent: 'lksjdowlha', zones: [[4812,1]], missing: 0});
-//]]></script> 
-<h3><a href="javascript:;" class="disclosure-off" onclick="return g_disclose($WH.ge('lknlksndgg-completion'), this)">Completion</a></h3> 
- 
-<div id="lknlksndgg-completion" style="display: none">Congratulations, &lt;class&gt;.<br /><br />Against insurmountable odds, you have weathered the storm.<br /><br />I trust that you shall find your reward proportionate to your conviction...
- 
-</div> 
- 
-<h3>Rewards</h3>
+<?php
+if(is_array($relations)) {
+    echo '<script type="text/javascript">//<![CDATA[
+    var g_mapperData = {};
+    var myMapper = new Mapper({parent: \'fweiuasf\', objectives: {';
+    // Start
+    if($relations['start']['zone']['zoneID'] == $relations['end']['zone']['zoneID']) {
+        echo sprintf('%d: {zone: \'%s\', mappable: 1, levels: {1: [{ type: \'1\', point: \'start\', name: \'%s\', coord: [%s], coords: [], id: %d, reactalliance: 1, reacthorde: 1},{ type: \'1\', point: \'end\', name: \'%s\', coord: [%s], coords: [], id: %d, reactalliance: 1, reacthorde: 1}]}}',
+            $relations['start']['zone']['areaID'],
+            addslashes($relations['end']['zone']['zoneName']),
+            addslashes($relations['start']['npc']['name']),
+            $relations['start']['zone']['coords']['x'] . ',' . $relations['start']['zone']['coords']['y'],
+            $relations['start']['npc']['id'],
+            addslashes($relations['end']['npc']['name']),
+            $relations['end']['zone']['coords']['x'] . ',' . $relations['end']['zone']['coords']['y'],
+            $relations['end']['npc']['id']
+        );
+        $zones_related = sprintf('[%d,1]', $relations['start']['zone']['areaID']);
+    }
+    else {
+        $zones_related = '';
+        foreach($relations as $type => $rel) {
+            echo sprintf('%d: {zone: \'%s\', mappable: 1, levels: {1: [{ type: \'1\', point: \'%s\', name: \'%s\', coord: [%s], coords: [], id: %d, reactalliance: 1, reacthorde: 1}]}}',
+                $rel['zone']['areaID'],
+                addslashes($rel['zone']['zoneName']),
+                $type,
+                addslashes($rel['npc']['name']),
+                $rel['zone']['coords']['x'] . ',' . $rel['zone']['coords']['y'],
+                $rel['npc']['id']
+            );
+            $zones_related .= sprintf('[%d,1]', $rel['zone']['areaID']);
+            if($type == 'start') {
+                echo ',';
+                $zones_related .= ',';
+            }
+        }
+    }
+    echo '}, zoneparent: \'lksjdowlha\', zones: [' . $zones_related . '], missing: 0});
+    //]]></script> ';
+}
+if($quest['Details'] != null) {
+    echo '<h3>'. WoW_Locale::GetString('template_quest_description') .'</h3> ' . $quest['Details'];
+}
+
+if($quest['CompletedText'] != null) {
+    echo '<h3><a href="javascript:;" class="disclosure-off" onclick="return g_disclose($WH.ge(\'lknlksndgg-completion\'), this)">' . WoW_Locale::GetString('template_quest_completion') . '</a></h3> 
+ <div id="lknlksndgg-completion" style="display: none">' . $quest['CompletedText'] . '</div>';
+}
+?> 
+
 
 <?php
 if($quest['ReceiveRewardText']['text'] != null) {
-    echo 'You will receive: ' . $quest['ReceiveRewardText']['text'];
+    echo '<h3>' . WoW_Locale::GetString('template_quest_rewards') . '</h3>' . WoW_Locale::GetString('template_quest_rewards_rewitems') . $quest['ReceiveRewardText']['text'];
     if($quest['ReceiveRewardText']['script'] != null) {
         echo '<script type="text/javascript">//<![CDATA[
         ' . $quest['ReceiveRewardText']['script'] . 
@@ -104,7 +161,10 @@ if($quest['ReceiveRewardText']['text'] != null) {
 
 <?php
 if($quest['ChoiceRewardText']['text'] != null) {
-    echo 'You will be able to choose one of these rewards:
+    if($quest['ReceiveRewardText']['text'] == null) {
+        echo '<h3>' . WoW_Locale::GetString('template_quest_rewards') . '</h3>';
+    }
+    echo  WoW_Locale::GetString('template_quest_rewards_choiceitems') . '
     <div class="pad"></div>' . $quest['ChoiceRewardText']['text'];
     if($quest['ChoiceRewardText']['script'] != null) {
         echo '<script type="text/javascript">//<![CDATA[
@@ -123,7 +183,7 @@ Upon completion of this quest you will gain:
 <li><div>44,100 experience</div></li> 
 <li><div><span>3,000</span> reputation with <a href="/faction=1156">The Ashen Verdict</a></div></li></ul> 
 -->
-<h2 class="clear">Related</h2> 
+<h2 class="clear"><?php echo WoW_Locale::GetString('template_related'); ?></h2> 
  
 </div> 
  
@@ -137,25 +197,27 @@ Upon completion of this quest you will gain:
 var tabsRelated = new Tabs({parent: $WH.ge('jkbfksdbl4'), trackable: 'Quest'});
 <?php
 if(is_array($achievements)) {
-    echo 'new Listview({template: \'achievement\', id: \'criteria-of\', name: LANG.tab_criteriaof, tabs: tabsRelated, parent: \'lkljbjkb574\', visibleCols: [\'category\'], computeDataFunc: Listview.funcBox.initStatisticFilter, onAfterCreate: Listview.funcBox.addStatisticIndicator, data: [';
     $count = count($achievements);
-    $current = 1;
-    foreach($achievements as $ach) {
-        echo sprintf('{"category":%d,"description":"%s","id":%d,"name":"%s","parentcat":%d,"points":%d,"side":%d,"type":%d}',
-            $ach['categoryId'],
-            str_replace('"', '\"', $ach['desc']),
-            $ach['id'],
-            str_replace('"', '\"', $ach['name']),
-            $ach['parentCategory'],
-            $ach['points'],
-            $ach['side'],
-            $ach['parentCategory'] == 1 ? 2 : 1
-        );
-        if($current < $count) {
-            echo ', ';
+    if($count > 0) {
+        echo 'new Listview({template: \'achievement\', id: \'criteria-of\', name: LANG.tab_criteriaof, tabs: tabsRelated, parent: \'lkljbjkb574\', visibleCols: [\'category\'], computeDataFunc: Listview.funcBox.initStatisticFilter, onAfterCreate: Listview.funcBox.addStatisticIndicator, data: [';
+        $current = 1;
+        foreach($achievements as $ach) {
+            echo sprintf('{"category":%d,"description":"%s","id":%d,"name":"%s","parentcat":%d,"points":%d,"side":%d,"type":%d}',
+                $ach['categoryId'],
+                str_replace('"', '\"', $ach['desc']),
+                $ach['id'],
+                str_replace('"', '\"', $ach['name']),
+                $ach['parentCategory'],
+                $ach['points'],
+                $ach['side'],
+                $ach['parentCategory'] == 1 ? 2 : 1
+            );
+            if($current < $count) {
+                echo ', ';
+            }
         }
+        echo ']});';
     }
-    echo ']});';
 }
 ?>
 new Listview({template: 'comment', id: 'comments', name: LANG.tab_comments, tabs: tabsRelated, parent: 'lkljbjkb574', data: lv_comments0});
