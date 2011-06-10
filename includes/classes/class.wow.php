@@ -34,7 +34,8 @@ Class WoW {
         }
         // Check static folder
         if(!preg_match('/http\:\/\//', WoWConfig::$Static_Url)) {
-            if(!@file_exists(WOW_DIRECTORY . WoWConfig::$Static_Url . '/favicon.ico') && !@file_exists(WoWConfig::$Static_Url . '/favicon.ico')) {
+            $path_without_prefix = str_replace(WoWConfig::$WoW_Path, null, WoWConfig::$Static_Url);
+            if(!@file_exists(WOW_DIRECTORY . WoWConfig::$Static_Url . '/favicon.ico') && !@file_exists(WoWConfig::$Static_Url . '/favicon.ico') && !@file_exists(WOW_DIRECTORY . $path_without_prefix . '/favicon.ico')) {
                 $errorMessage .= '<li>Please, check your WoWConfig::$Static_Url parameter, seems that you have wrong value.</li>';
             }
         }
