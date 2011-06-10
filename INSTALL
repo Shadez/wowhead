@@ -1,6 +1,6 @@
 1) Download sources from Github.com
-2) Download WoW Icons from "Downloads" section (https://github.com/Shadez/wowhead/downloads)
-3) Unzip icons.7z to "static/images/wow/" directory (you should have "static/wow/icons/tiny/" folder after extracting, for example).
+2) Download WoW Icons (icons.7z) and WoW Maps (maps.7z) from "Downloads" section (https://github.com/Shadez/wowhead/downloads)
+3) Unzip icons.7z and maps.7z to the "static/images/wow/" directory (you should have "static/wow/icons/tiny/" and "static/wow/maps/enus/normal/4812.jpg" folder after extracting, for example).
 4) Rename "includes/configs/*.php.default" to "*.php" and edit WoWConfig.php file (read comments about $WoW_Path and $Static_Url varables!).
 5) Change 2 lines in .htaccess file:
 
