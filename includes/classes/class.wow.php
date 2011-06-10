@@ -448,7 +448,9 @@ Class WoW {
     }
     
     private static function InitTalentCalc() {
-        WoW_Template::SetPageIndex('talentcalc');
+        WoW_Template::SetPageIndex('talent');
+        WoW_Template::SetPageData('activeTab', 1);
+        WoW_Template::SetPageData('disable_breadcrumb', true);
     }
     
     private static function InitPetCalc() {
@@ -484,11 +486,16 @@ Class WoW {
             case 'user':
                 $js_contents = file_get_contents('data/' . self::GetPageAction() . '.js');
                 break;
+            // Locale-depended files
             case 'weight-presets.zones':
-                $js_contents = file_get_contents('data/weight-presets.zones-' . WoW_Locale::GetLocaleID() . '.js');
-                break;
             case 'zones':
-                $js_contents = file_get_contents('data/zones-' . WoW_Locale::GetLocaleID() . '.js');
+            case 'glyphs':
+                $js_contents = file_get_contents('data/' . self::GetPageAction() . '-' . WoW_Locale::GetLocaleID() . '.js');
+                break;
+            case 'talents':
+                $class_id = (isset($_GET['class'])) ? (int) $_GET['class'] : 6;
+                $js_contents = file_get_contents('data/talents-' . $class_id . '-' . WoW_Locale::GetLocaleID() . '.js');
+                break;
         }
         WoW_Template::SetPageData('js-data', $js_contents); // Must be freed after using!
     }

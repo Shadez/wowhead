@@ -1,0 +1,44 @@
+#tc-classes {
+width:946px;
+padding-bottom:10px;
+margin:0 auto;
+}
+
+#tc-classes-inner {
+width:460px;
+text-align:center;
+margin:0 auto;
+}
+
+#tc-classes p {
+font-size:32px;
+margin:0 0 16px;
+padding:0;
+}
+
+#tc-classes .iconmedium {
+float:left;
+margin-right:2px;
+opacity:.6666;
+filter:alpha(opacity=66);
+}
+
+#tc-classes.choose {
+position:relative;
+padding:0;
+}
+
+#tc-classes.choose #tc-classes-outer {
+width:614px;
+}
+
+#tc-classes.choose #tc-classes-inner {
+position:absolute;
+left:77px;
+top:85px;
+}
+
+#tc-classes .iconmedium-gold-selected,#tc-classes.choose .iconmedium {
+opacity:1;
+filter:alpha(opacity=100);
+}

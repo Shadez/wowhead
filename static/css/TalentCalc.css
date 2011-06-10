@@ -1,0 +1,607 @@
+.talentcalc-sidebar
+{
+  float:right;
+  background-color:#141414;
+  border:1px solid #101010;
+  -webkit-border-radius:6px;
+  -moz-border-radius:6px;
+  border-radius:6px;
+  padding:10px;
+}
+
+.talentcalc-sidebar-inner
+{
+  width:300px;
+  position:relative;
+}
+
+.talentcalc-sidebar-controls
+{
+  padding-bottom:10px;
+}
+
+.talentcalc-sidebar-controls a
+{
+  float:left;
+  display:block;
+  margin-right:10px;
+}
+
+a.talentcalc-button-help
+{
+  position:absolute;
+  right:10px;
+}
+
+.talentcalc-sidebar-controls2
+{
+  padding:2px 0;
+}
+
+.talentcalc-sidebar-controls2 a
+{
+  display:block;
+  margin-right:10px;
+  float:left;
+}
+
+.talentcalc-sidebar h3
+{
+  font-size:14px;
+  margin:1.5em 0 .5em;
+  padding:0;
+}
+
+.talentcalc-sidebar h3.first
+{
+  margin-top:0;
+}
+
+.talentcalc-sidebar h3 a
+{
+  font-size:11px;
+  margin-left:6px;
+  font-weight:400;
+}
+
+.talentcalc-sidebar-primeglyphs,.talentcalc-sidebar-majorglyphs,.talentcalc-sidebar-minorglyphs
+{
+  float:left;
+  width:100px;
+  font-size:11px;
+}
+
+.talentcalc-sidebar .icontab td
+{
+  width:70px;
+  height:34px;
+  font-size:11px;
+}
+
+.talentcalc-wrapper
+{
+  float:left;
+  width:614px;
+}
+
+.talentcalc-upper
+{
+  background-color:#141414;
+  border:1px solid #101010;
+  font-size:14px;
+  margin-bottom:10px;
+  width:596px;
+  -webkit-border-radius:4px;
+  -moz-border-radius:4px;
+  border-radius:4px;
+  padding:6px 8px;
+}
+
+.talentcalc-upper span
+{
+  color:#DDD;
+}
+
+.talentcalc-upper b
+{
+  color:#FFF;
+}
+
+.talentcalc-upper-class
+{
+  float:left;
+}
+
+.talentcalc-upper-reqlevel
+{
+  float:right;
+}
+
+.talentcalc-upper-ptsleft
+{
+  margin-left:60px;
+  float:right;
+}
+
+.talentcalc-upper-ptsleft a
+{
+  font-size:11px;
+  font-weight:700;
+  margin-left:6px;
+}
+
+.talentcalc-masteries
+{
+  width:612px;
+  height:352px;
+  background-color:#141414;
+  border:1px solid #101010;
+  -webkit-border-radius:4px;
+  -moz-border-radius:4px;
+  border-radius:4px;
+}
+
+.talentcalc-masteries .button-red
+{
+  float:none;
+  margin-left:0;
+  padding-left:0;
+  text-align:center;
+}
+
+.talentcalc-masteries .button-red em
+{
+  padding-right:0;
+  width:100%;
+}
+
+.talentcalc-masteries .button-red b
+{
+  width:100%;
+  left:-1px;
+  top:2px;
+}
+
+.talentcalc-masteries .button-red i
+{
+  top:0;
+  left:0;
+  position:relative;
+}
+
+.talentcalc-masteries .mastery-glow
+{
+  background:url(../images/TalentCalc/summary-glow.png) center -36px no-repeat;
+}
+
+.talentcalc-masteries .mastery-icon
+{
+  width:56px;
+  height:56px;
+  clear:both;
+  display:block;
+  position:relative;
+  z-index:0;
+  -webkit-border-radius:28px;
+  -moz-border-radius:28px;
+  border-radius:28px;
+  margin:8px auto;
+}
+
+.talentcalc-masteries .mastery-icon del
+{
+  width:56px;
+  height:56px;
+  display:block;
+  background:url(../images/Icon/round/mask.gif);
+  z-index:5;
+}
+
+.talentcalc-masteries .mastery-icon ins
+{
+  top:-6px;
+  left:-6px;
+  width:68px;
+  height:68px;
+  display:block;
+  position:absolute;
+  background:url(../images/Icon/round/large.png);
+  z-index:10;
+}
+
+.talentcalc-masteries .mastery-icon var
+{
+  width:20px;
+  height:20px;
+  display:block;
+  position:absolute;
+  right:-6px;
+  bottom:-2px;
+  background:url(../images/TalentCalc/roles.png) top left;
+  z-index:15;
+}
+
+.talentcalc-masteries .mastery-spell
+{
+  display:table-cell;
+  vertical-align:middle;
+  width:156px;
+}
+
+.talentcalc-masteries .mastery-spell a:hover
+{
+  color:#FFF!important;
+}
+
+.talentcalc-masteries .mastery-spell-rating .iconsmall a
+{
+  cursor:default;
+}
+
+.talentcalc-masteries-tree
+{
+  height:330px;
+  border:1px solid;
+  overflow:hidden;
+  -webkit-border-radius:3px;
+  -moz-border-radius:3px;
+  border-radius:3px;
+  margin:2px;
+  padding:8px;
+}
+
+.talentcalc-treenames
+{
+  position:relative;
+  height:26px;
+  margin-bottom:10px;
+}
+
+.talentcalc-pet .talentcalc-treenames
+{
+  width:244px;
+  margin-left:auto;
+  margin-right:auto;
+}
+
+.talentcalc-treenames-tree1,.talentcalc-treenames-tree2,.talentcalc-treenames-tree3
+{
+  position:absolute;
+  top:0;
+}
+
+.talentcalc-default .talentcalc-treenames-tree1,.talentcalc-default .talentcalc-treenames-tree2,.talentcalc-default .talentcalc-treenames-tree3
+{
+  width:204px;
+}
+
+.talentcalc-pet .talentcalc-treenames-tree1,.talentcalc-pet .talentcalc-treenames-tree2,.talentcalc-pet .talentcalc-treenames-tree3
+{
+  width:244px;
+}
+
+.talentcalc-treenames-tree1
+{
+  left:0;
+}
+
+.talentcalc-treenames-tree2
+{
+  left:205px;
+}
+
+.talentcalc-treenames-tree3
+{
+  left:410px;
+}
+
+.talentcalc-treenames p
+{
+  background:url(../images/TalentCalc/summary-glow.png) center 64px;
+  border:1px solid #141414;
+  font-size:14px;
+  color:#DDD;
+  height:24px;
+  line-height:24px;
+  overflow:hidden;
+  -webkit-border-radius:4px;
+  -moz-border-radius:4px;
+  border-radius:4px;
+  margin:0 auto;
+  padding:0;
+}
+
+.talentcalc-default .talentcalc-treenames p,.talentcalc-default .talentcalc-treenames em
+{
+  width:202px;
+}
+
+.talentcalc-pet .talentcalc-treenames p
+{
+  width:242px;
+}
+
+.talentcalc-treenames p span
+{
+  margin-left:48px;
+}
+
+.talentcalc-treenames p span b
+{
+  top:13px;
+  left:24px;
+  width:16px;
+  display:block;
+  position:absolute;
+  font-size:11px;
+  text-align:center;
+  color:#FFF;
+  z-index:10;
+}
+
+.talentcalc-treenames p a
+{
+  float:right;
+  width:20px;
+  height:20px;
+  margin-top:2px;
+  opacity:.3333;
+  filter:alpha(opacity=33);
+  background:url(../images/icons/delete.gif) no-repeat 2px 2px;
+}
+
+.talentcalc-treenames p a:hover
+{
+  opacity:1;
+  filter:alpha(opacity=100);
+}
+
+.talentcalc-treenames .iconmedium
+{
+  top:-9px;
+  left:-2px;
+  position:absolute;
+  z-index:5;
+}
+
+.talentcalc-treenames .iconmedium del
+{
+  background-image:url(../images/TalentCalc/icon-border-header.png);
+  background-position:center;
+}
+
+.talentcalc-treenames var
+{
+  float:right;
+  width:16px;
+  height:16px;
+  margin-top:4px;
+  background:url(../images/TalentCalc/roles-header.png) top left;
+}
+
+.talentcalc-treenames .mastery .iconmedium del
+{
+  background-position:bottom;
+}
+
+.talentcalc-treenames .locked .iconmedium del
+{
+  background-position:top;
+}
+
+.talentcalc-treenames .locked span b
+{
+  display:none;
+}
+
+.talentcalc-main
+{
+  background-color:#000;
+}
+
+.talentcalc-default .talentcalc-main
+{
+  width:614px;
+  height:354px;
+}
+
+.talentcalc-pet .talentcalc-main
+{
+  width:244px;
+  height:364px;
+  margin-left:auto;
+  margin-right:auto;
+}
+
+.talentcalc-main table
+{
+  border-collapse:collapse;
+  margin:2px;
+}
+
+.talentcalc-main table td
+{
+  width:50px;
+  height:50px;
+  padding:0;
+}
+
+.talentcalc-pet table td
+{
+  width:60px;
+  height:60px;
+}
+
+.talent-tree-inner1,.talent-tree-inner2,.talent-tree-inner3
+{
+  overflow:hidden;
+}
+
+.talentcalc-main .mastery
+{
+  background:url(../images/TalentCalc/mastery-tree-glow.png);
+}
+
+.iconmedium div.icon-border
+{
+  position:absolute;
+  z-index:15;
+  left:1px;
+  top:1px;
+  width:42px;
+  height:42px;
+  background:url(../images/TalentCalc/border.gif) no-repeat;
+}
+
+.iconmedium div.icon-border-ability
+{
+  background:url(../images/TalentCalc/icon-border-ability.png) no-repeat;
+}
+
+.iconmedium div.icon-bubble
+{
+  position:absolute;
+  z-index:16;
+  width:22px;
+  height:23px;
+  left:30px;
+  top:29px;
+  background:url(../images/TalentCalc/bubble.png) no-repeat;
+  visibility:hidden;
+  font-family:Verdana,sans-serif;
+  font-size:12px;
+  text-align:center;
+  cursor:default;
+  padding:4px 0 0;
+}
+
+.iconmedium a.bubbly
+{
+  background-image:url(../images/TalentCalc/icon-medium-hilite.png);
+}
+
+.talentcalc-arrow-anchor
+{
+  position:relative;
+  z-index:30;
+}
+
+.talentcalc-arrow
+{
+  position:absolute;
+  z-index:30;
+}
+
+.talentcalc-arrow table
+{
+  width:100%;
+  height:100%;
+  border-collapse:collapse;
+}
+
+.talentcalc-arrow table td,.talentcalc-arrow table th
+{
+  font-size:1px;
+  width:auto;
+  height:auto;
+}
+
+.talentcalc-arrow-leftdown td
+{
+  background-image:url(../images/TalentCalc/arrows/leftdown.png);
+}
+
+.talentcalc-arrow-leftdown2 td
+{
+  background-image:url(../images/TalentCalc/arrows/leftdown2.png);
+}
+
+.talentcalc-arrow-rightdown td
+{
+  background-image:url(../images/TalentCalc/arrows/rightdown.png);
+}
+
+.talentcalc-arrow-rightdown2 td
+{
+  background-image:url(../images/TalentCalc/arrows/rightdown2.png);
+}
+
+.talentcalc-arrow-right td
+{
+  background-image:url(../images/TalentCalc/arrows/right.png);
+}
+
+.talentcalc-arrow-right2 td
+{
+  background-image:url(../images/TalentCalc/arrows/right2.png);
+}
+
+.talentcalc-arrow-left td
+{
+  background-image:url(../images/TalentCalc/arrows/left.png);
+}
+
+.talentcalc-arrow-left2 td
+{
+  background-image:url(../images/TalentCalc/arrows/left2.png);
+}
+
+.talentcalc-glyphpicker
+{
+  font-size:13px;
+  width:780px;
+  height:554px;
+  background-color:#303030;
+  border:10px solid #303030;
+  border-bottom:0;
+}
+
+.talentcalc-glyphpicker .listview
+{
+  border:0;
+}
+
+.talentcalc-glyphpicker .listview-band-top
+{
+  background-color:#303030;
+}
+
+.talentcalc,.talentcalc-main table td .iconmedium
+{
+  margin:0 auto;
+}
+
+.talentcalc-default,.talentcalc-pet
+{
+  width:946px;
+}
+
+.talentcalc-sidebar .icontab a,.talentcalc-masteries a
+{
+  text-decoration:none;
+}
+
+.talentcalc-masteries .mastery-icon .role2,.talentcalc-treenames .role2
+{
+  background-position:bottom left;
+}
+
+.talentcalc-masteries .mastery-icon .role4,.talentcalc-treenames .role4
+{
+  background-position:top right;
+}
+
+.talentcalc-masteries .mastery-icon .role8,.talentcalc-treenames .role8
+{
+  background-position:bottom right;
+}
+
+.talentcalc-arrow-down td,.talentcalc-arrow-leftdown th,.talentcalc-arrow-rightdown th
+{
+  background-image:url(../images/TalentCalc/arrows/down.png);
+}
+
+.talentcalc-arrow-down2 td,.talentcalc-arrow-leftdown2 th,.talentcalc-arrow-rightdown2 th
+{
+  background-image:url(../images/TalentCalc/arrows/down2.png);
+}

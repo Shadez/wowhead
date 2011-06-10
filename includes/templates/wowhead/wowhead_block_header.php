@@ -40,7 +40,10 @@ echo WoW_Template::GetJSForPage();
 switch(WoW_Template::GetPageIndex()) {
     case 'item':
     case 'items':
-        echo sprintf('<script type="text/javascript" src="%sdata=weight-presets.zones"></script>', WoW::GetUrl(), WoW_Locale::GetLocaleID());
+        echo sprintf('<script type="text/javascript" src="%sdata=weight-presets.zones"></script>', WoW::GetUrl());
+        break;
+    case 'talent':
+        echo sprintf('<script type="text/javascript" src="%sdata=glyphs"></script>', WoW::GetUrl(), WoW_Locale::GetLocaleID());
         break;
 }
 ?>

@@ -118,6 +118,22 @@ Class WoW_Template {
                 break;
             case 'achievements':
                 break;
+            case 'talent':
+                $css_data_page = array(
+                    array(
+                        'path' => '/css/TalentCalc.css',
+                        'version' => WOW_REVISION,
+                        'browser' => false,
+                        'media' => 'all'
+                    ),
+                    array(
+                        'path' => '/css/talent.css',
+                        'version' => WOW_REVISION,
+                        'browser' => false,
+                        'media' => 'all'
+                    )
+                );
+                break;
             default:
                 $css_data_page = array(
                     array(
@@ -181,6 +197,18 @@ Class WoW_Template {
                 $js_data_page = array(
                     array(
                         'path' => '/js/filters.js',
+                        'version' => WOW_REVISION
+                    )
+                );
+                break;
+            case 'talent':
+                $js_data_page = array(
+                    array(
+                        'path' => '/js/TalentCalc.js',
+                        'version' => WOW_REVISION
+                    ),
+                    array(
+                        'path' => '/js/talent.js',
                         'version' => WOW_REVISION
                     )
                 );
@@ -255,7 +283,8 @@ Class WoW_Template {
                 return sprintf('%s%s', WoW_Locale::GetString('template_quests_title'), $onlyPage ? null : ' - World of Warcraft');
             case 'quest':
                 return sprintf('%s - %s%s', WoW_Template::GetPageData('quest_name'), WoW_Locale::GetString('template_quest_title'), $onlyPage ? null : ' - World of Warcraft');
-            
+            case 'talent':
+                return sprintf('%s - World of Warcraft', WoW_Locale::GetString('template_talent_calc'));
             default:
                 return sprintf('%s: %s', WoWConfig::$SiteTitle, self::GetRandomTitle());
         }

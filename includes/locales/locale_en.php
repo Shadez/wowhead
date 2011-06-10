@@ -92,6 +92,7 @@ $WoW_Locale = array(
     'template_item_title' => 'Item',
     'template_quests_title' => 'Quests',
     'template_quest_title' => 'Quest',
+    'template_talent_calc' => 'Talent Calculator',
     
     'template_game_string_name' => 'name',
     'template_game_string_class' => 'class',

@@ -54,10 +54,10 @@ if (typeof $WowheadPower == "undefined") {
                 },
                 ag = {
                     3: {
-                        url: "WOWHEAD_URL/data=item-scaling"
+                        url: "WOWHEAD_URLdata=item-scaling"
                     },
                     6: {
-                        url: "WOWHEAD_URL/data=spell-scaling"
+                        url: "WOWHEAD_URLdata=spell-scaling"
                     }
                 },
                 e = {
@@ -156,9 +156,9 @@ if (typeof $WowheadPower == "undefined") {
                     al = 3;
                     if (ax.href.indexOf("http://") == 0 || ax.href.indexOf("https://") == 0) {
                         ao = 1;
-                        ak = ax.href.match(/^https?:\/\/(.+?)?\.?(?:wowhead|thottbot)\.com\/\??(item|quest|spell|achievement|statistic|npc|object)=([0-9]+)/);
+                        ak = ax.href.match(/^(http:\/\/.+?)?\?(item|quest|spell|achievement|statistic|npc|object)=([0-9]+)/);
                         if (ak == null) {
-                            ak = ax.href.match(/^https?:\/\/(.+?)?\.?(?:wowhead|thottbot)\.com\/\??(profile)=([^&#]+)/)
+                            ak = ax.href.match(/^(http:\/\/.+?)?\?(profile)=([^&#]+)/)
                         }
                         C = 0
                     } else {
@@ -349,7 +349,7 @@ if (typeof $WowheadPower == "undefined") {
                 }
                 var ak = "";
                 if (typeof g_dev == "undefined" || !g_dev) {
-                    ak += document.location.protocol + "//" + "WOWHEAD_URL"
+                    ak += document.location.protocol + "//" + "WOWHEAD_DOMAIN"
                 } else {
                     if (window.location.hostname.indexOf("dev.wowhead.com") != -1) {
                         if (ar != "www" && window.location.hostname.indexOf(ar) != 0) {
@@ -399,8 +399,8 @@ if (typeof $WowheadPower == "undefined") {
                             var ak = 0;
                             for (var an = 0, ap = v.pcs.length; an < ap; ++an) {
                                 var al;
-                                if (al = ao.match(new RegExp("<span><!--si([0-9]+:)*" + v.pcs[an] + '(:[0-9]+)*--><a href="/??item=(\\d+)">(.+?)</a></span>'))) {
-                                    ao = ao.replace(al[0], '<span class="q8"><!--si' + v.pcs[an] + '--><a href="/item=' + al[3] + '">' + (($WH.isset("g_items") && g_items[v.pcs[an]]) ? g_items[v.pcs[an]]["name_" + e[T]] : al[4]) + "</a></span>");
+                                if (al = ao.match(new RegExp("<span><!--si([0-9]+:)*" + v.pcs[an] + '(:[0-9]+)*--><a href="WOWHEAD_URL??item=(\\d+)">(.+?)</a></span>'))) {
+                                    ao = ao.replace(al[0], '<span class="q8"><!--si' + v.pcs[an] + '--><a href="WOWHEAD_URLitem=' + al[3] + '">' + (($WH.isset("g_items") && g_items[v.pcs[an]]) ? g_items[v.pcs[an]]["name_" + e[T]] : al[4]) + "</a></span>");
                                     ++ak
                                 }
                             }
