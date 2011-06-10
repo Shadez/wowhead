@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<jnlp href="ModelView1000.jnlp" spec="6.0+">
+	<information>
+		<title>Model Viewer Applet</title>
+		<vendor>ZAM Network</vendor>
+	</information>
+	<resources os="Windows">
+		<property name="sun.java2d.noddraw" value="true" />
+	</resources>
+	<resources>
+		<j2se href="http://java.sun.com/products/autodl/j2se" version="1.6+" />
+		<jar href="ModelView1000.jar" main="true" />
+		<jar href="http://download.java.net/media/java3d/webstart/release/vecmath/latest/vecmath.jar" />
+		<extension name="jogl" href="http://download.java.net/media/jogl/builds/archive/jsr-231-webstart-current/jogl.jnlp" />
+	</resources>
+	<update check="background" policy="prompt-update" />
+	<applet-desc name="Model Viewer Applet" main-class="modelview.ModelViewerApplet" width="100" height="100" />
+</jnlp>

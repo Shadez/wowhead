@@ -1,0 +1,9 @@
+.listview-quicksearch input.search-within-results
+{
+  background:#FFF url(../images/enus/searchwithinresults.gif) .2em center no-repeat;
+}
+
+.listview-quicksearch input.search-within-results2
+{
+  background:#FFF url(../images/enus/searchwithinresults2.gif) .2em center no-repeat;
+}

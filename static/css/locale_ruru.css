@@ -1,0 +1,15 @@
+.listview-quicksearch input.search-within-results {
+background:#FFF url(../images/ruru/searchwithinresults.gif) .2em center no-repeat;
+}
+
+.listview-quicksearch input.search-within-results2 {
+background:#FFF url(../images/ruru/searchwithinresults2.gif) .2em center no-repeat;
+}
+
+#su_searchbox {
+left:-59px!important;
+}
+
+#su_weights {
+width:625px!important;
+}
