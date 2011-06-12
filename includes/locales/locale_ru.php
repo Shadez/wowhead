@@ -92,7 +92,26 @@ $WoW_Locale = array(
     'template_item_title' => 'Предмет',
     'template_quests_title' => 'Задания',
     'template_quest_title' => 'Задание',
+    'template_npcs_title' => 'НИП',
+    'template_npc_title' => 'НИП',
+    'template_skills_title' => 'Умения',
+    'template_skill_title' => 'Уровень навыка',
+    'template_spells_title' => 'Заклинания',
+    'template_spell_title' => 'Заклинание',
+    'template_objects_title' => 'Объекты',
+    'template_object_title' => 'Объект',
+    'template_titles_title' => 'Звания',
+    'template_title_title' => 'Звание',
+    'template_classes_title' => 'Классы',
+    'template_class_title' => 'Класс',
+    'template_races_title' => 'Расы',
+    'template_race_title' => 'Раса',
+    'template_zones_title' => 'Местности',
+    'template_zone_title' => 'Игровая зона',
+    'template_itemsets_title' => 'Комплекты',
+    'template_itemset_title' => 'Комплект',
     'template_talent_calc' => 'Расчёт талантов',
+    'template_search_title' => 'Поиск Wowhead',
     
     'template_game_string_name' => 'имя',
     'template_game_string_class' => 'класс',
@@ -289,7 +308,8 @@ $WoW_Locale = array(
     'template_quest_gains_xp' => '%s опыта',
     'template_quest_gains_hp' => '%s очков чести',
     'template_quest_gains_rep' => '<span>%s</span> репутации с <a href="' . WoW::GetWoWPath() . '/faction=%d">%s</a>',
-    
     'template_quest_obj_players_slain' => 'Убито игроков&nbsp;(%d)',
+    
+    'template_search_header' => 'Результаты поиска ',
 );
 ?>

@@ -92,7 +92,26 @@ $WoW_Locale = array(
     'template_item_title' => 'Item',
     'template_quests_title' => 'Quests',
     'template_quest_title' => 'Quest',
+    'template_npcs_title' => 'NPCs',
+    'template_npc_title' => 'NPC',
+    'template_skills_title' => 'Skills',
+    'template_skill_title' => 'Skill',
+    'template_spells_title' => 'Spells',
+    'template_spell_title' => 'Spell',
+    'template_objects_title' => 'Objects',
+    'template_object_title' => 'Object',
+    'template_titles_title' => 'Titles',
+    'template_title_title' => 'Title',
+    'template_classes_title' => 'Classes',
+    'template_class_title' => 'Class',
+    'template_races_title' => 'Races',
+    'template_race_title' => 'Race',
+    'template_zones_title' => 'Zones',
+    'template_zone_title' => 'Zone',
+    'template_itemsets_title' => 'Itemsets',
+    'template_itemset_title' => 'Itemset',
     'template_talent_calc' => 'Talent Calculator',
+    'template_search_title' => 'Wowhead Search',
     
     'template_game_string_name' => 'name',
     'template_game_string_class' => 'class',
@@ -292,6 +311,9 @@ $WoW_Locale = array(
     'template_quest_gains_xp' => '%s experience',
     'template_quest_gains_hp' => '%s honor points',
     'template_quest_gains_rep' => '<span>%s</span> reputation with <a href="' . WoW::GetWoWPath() . '/faction=%d">%s</a>',
+    'template_quest_obj_players_slain' => 'Players Slain&nbsp;(%d)',
+    
+    'template_search_header' => 'Search Results for',
 );
 
 ?>

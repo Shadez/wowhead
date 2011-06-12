@@ -50,7 +50,8 @@ $custom_classes_files = array(
     array('title' => 'Items Class File', 'path' => 'classes/class.items.php', 'type' => 'ITEMS'),
     array('title' => 'Utils Class File', 'path' => 'classes/class.utils.php', 'type' => 'DATABASE'),
     array('title' => 'Search Class File', 'path' => 'classes/class.search.php', 'type' => 'SEARCH'),
-    array('title' => 'Quests Class File', 'path' => 'classes/class.quests.php', 'type' => 'QUESTS')
+    array('title' => 'Quests Class File', 'path' => 'classes/class.quests.php', 'type' => 'QUESTS'),
+    array('title' => 'NPCs Class File', 'path' => 'classes/class.npcs.php', 'type' => 'NPCS')
 );
 // Data
 $data_files = array(
@@ -78,7 +79,7 @@ if(isset($_GET['locale'])) {
             exit;
         }
         else {
-            header('Location: ' . WoW::GetWoWPath() . '/');
+            WoW::RedirectTo();
             exit; 
         }
     }

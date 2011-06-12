@@ -298,8 +298,7 @@ Class WoW {
                 }
             }
             $filter_filters = str_replace(array(':;', '=;'), ';', $filter_filters);
-            header('Location: ' . WoW::GetWoWPath() . '/' . self::GetPageAction() . '?filter=' . $filter_filters);
-            exit;
+            WoW::RedirectTo(self::GetPageAction() . '?filter=' . $filter_filters);
         }
         /*
             COMMON FILTERS:
@@ -411,6 +410,8 @@ Class WoW {
     
     private static function InitNPCs() {
         self::AssignTemplatePageIndex(array('npcs', 'npc'));
+        WoW_Template::SetPageData('activeTab', 0);
+        WoW_NPCs::InitPage(WoW_Template::GetPageIndex(), self::GetPageAction());
     }
     
     private static function InitObjects() {
@@ -472,6 +473,7 @@ Class WoW {
         }
         switch(self::GetPageID()) {
             case 'search':
+                WoW_Template::SetPageIndex('search');
                 WoW_Search::InitPage('search', 0);
                 break;
         }
@@ -483,6 +485,7 @@ Class WoW {
         switch(self::GetPageAction()) {
             case 'spell-scaling':
             case 'item-scaling':
+            case 'realms.weight-presets':
             case 'user':
                 $js_contents = file_get_contents('data/' . self::GetPageAction() . '.js');
                 break;
@@ -610,6 +613,7 @@ Class WoW {
             case 'newsfeed':
             case 'searchbox':
             case 'tooltips':
+            case 'search':
                 return true;
             default:
                 return false;
@@ -666,6 +670,11 @@ Class WoW {
             }
             $criterias = str_replace(',]', ']', $criterias);
         }
+    }
+    
+    public function RedirectTo($page = '') {
+        header('Location: ' . WoW::GetWoWPath() . '/' . $page);
+        exit;
     }
 }
 ?>

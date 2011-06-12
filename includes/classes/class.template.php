@@ -271,22 +271,12 @@ Class WoW_Template {
                 return sprintf('%s: %s', WoWConfig::$SiteTitle, self::GetRandomTitle());
             case 'error':
                 return sprintf('%s%s', WoW_Locale::GetString('template_404_title'), $onlyPage ? null : sprintf(' - %s', WoWConfig::$SiteTitle));
-            case 'achievements':
-                return sprintf('%s%s', WoW_Locale::GetString('template_achievements_title'), $onlyPage ? null : ' - World of Warcraft');
-            case 'achievement':
-               return sprintf('%s%s', WoW_Locale::GetString('template_achievement_title'), $onlyPage ? null : ' - World of Warcraft');
-            case 'items':
-                return sprintf('%s%s', WoW_Locale::GetString('template_items_title'), $onlyPage ? null : ' - World of Warcraft');
-            case 'item':
-                return sprintf('%s - %s%s', WoW_Template::GetPageData('item_name'), WoW_Locale::GetString('template_item_title'), $onlyPage ? null : ' - World of Warcraft');
-            case 'quests':
-                return sprintf('%s%s', WoW_Locale::GetString('template_quests_title'), $onlyPage ? null : ' - World of Warcraft');
-            case 'quest':
-                return sprintf('%s - %s%s', WoW_Template::GetPageData('quest_name'), WoW_Locale::GetString('template_quest_title'), $onlyPage ? null : ' - World of Warcraft');
             case 'talent':
                 return sprintf('%s - World of Warcraft', WoW_Locale::GetString('template_talent_calc'));
+            case 'search':
+                return sprintf('%s - %s', WoW_Template::GetPageData('search_query'), WoW_Locale::GetString('template_search_title'));
             default:
-                return sprintf('%s: %s', WoWConfig::$SiteTitle, self::GetRandomTitle());
+                return sprintf('%s%s%s', WoW_Template::GetPageData('db_page_title'), WoW_Locale::GetString('template_' . self::GetPageIndex() . '_title'), $onlyPage ? null : ' - World of Warcraft');
         }
     }
     

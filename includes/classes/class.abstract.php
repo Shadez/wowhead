@@ -35,7 +35,7 @@ Class WoW_Abstract {
             }
         }
         else {
-            $cat_data = array();
+            $cat_data = array($category);
         }
         // Max subcats count: 3 - type.cat1.cat2
         $type = (isset($cat_data[0]) && $cat_data[0] !== false) ? $cat_data[0] : -1;
@@ -59,6 +59,9 @@ Class WoW_Abstract {
             case 'items':
             case 'item':
                 return 0;
+            case 'npcs':
+            case 'npc':
+                return 4;
         }
     }
     

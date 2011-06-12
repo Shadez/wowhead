@@ -822,6 +822,10 @@ Class WoW_Utils {
         );
     }
     
+    /**
+     * Replaces placeholders to text
+     * @author AoWoW Dev Team (Arcano, LordJZ)
+     **/
     public function GameStringToHTML(&$str) {
         // Uppercase to lowercase
         $str = strtr($str, array(

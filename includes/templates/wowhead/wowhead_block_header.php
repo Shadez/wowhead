@@ -45,6 +45,12 @@ switch(WoW_Template::GetPageIndex()) {
     case 'talent':
         echo sprintf('<script type="text/javascript" src="%sdata=glyphs"></script>', WoW::GetUrl(), WoW_Locale::GetLocaleID());
         break;
+    case 'npc':
+        echo sprintf('<script type="text/javascript" src="%sdata=zones"></script>', WoW::GetUrl(), WoW_Locale::GetLocaleID());
+        break;
+    case 'search':
+        echo sprintf('<script type="text/javascript" src="%sdata=realms.weight-presets"></script>', WoW::GetUrl(), WoW_Locale::GetLocaleID());
+        break;
 }
 ?>
 

@@ -485,7 +485,7 @@ Class WoW_Items extends WoW_Abstract {
                 // Skip white bonuses
                 continue;
             }
-            $tooltip_buffer .= sprintf('<span class="q2">%s %s<!--rtg%d-->%d&nbsp;<small>(<!--rtg%d-->0.00%%&nbsp;@&nbsp;L<!--lvl-->%d)</small>.</span><br />', WoW_Locale::GetString('template_item_stats_green'), WoW_Locale::GetString('template_item_stat_' . $stat['type']), $stat['type'], $stat['value'], $stat['type'], MAX_PLAYER_LEVEL);
+            $tooltip_buffer .= sprintf('<span class="q2">%s %s<!--rtg%d--> %d&nbsp;<small>(<!--rtg%d-->0.00%%&nbsp;@&nbsp;L<!--lvl-->%d)</small>.</span><br />', WoW_Locale::GetString('template_item_stats_green'), WoW_Locale::GetString('template_item_stat_' . $stat['type']), $stat['type'], $stat['value'], $stat['type'], MAX_PLAYER_LEVEL);
         }
         // Description
         if($proto->description != null) {
@@ -710,6 +710,82 @@ Class WoW_Items extends WoW_Abstract {
             $i++;
         }
         return $races_data;
+    }
+    
+    public static function GetExtendedItemInfo($entry) {
+        if(!is_array($entry)) {
+            return false;
+        }
+        $data = DB::World()->select("
+        SELECT
+        `a`.`entry`,
+        `a`.`name`,
+        `a`.`displayid`,
+        `a`.`Quality` AS `quality`,
+        `a`.`SellPrice` AS `sellprice`,
+        `a`.`BuyPrice` AS `buyprice`,
+        `a`.`class`,
+        `a`.`subclass`,
+        `a`.`displayid`,
+        `a`.`Flags`,
+        `a`.`Flags2`,
+        `a`.`armor`,
+        `a`.`InventoryType` AS `slotbak`,
+        `a`.`AllowableClass`,
+        `a`.`AllowableRace`,
+        `a`.`ItemLevel` AS `level`,
+        `a`.`RequiredLevel` AS `reqlevel`,
+        `b`.`icon`,
+        %s
+        FROM `item_template` AS `a`
+        LEFT JOIN `DBPREFIX_icons` AS `b` ON `b`.`displayid` = `a`.`displayid`
+        %s
+        WHERE `a`.`entry` IN (%s)",
+            WoW_Locale::GetLocaleID() != LOCALE_EN ? '`c`.`name_loc' . WoW_Locale::GetLocaleID() . '` AS `name_loc`' : 'NULL', 
+            WoW_Locale::GetLocaleID() != LOCALE_EN ? 'LEFT JOIN `locales_item` AS `c` ON `c`.`entry` = `a`.`entry`' : null,
+            $entry
+        );
+        ///$items = array();
+        foreach($data as &$item) {
+            $item['id'] = $item['entry'];
+            if(isset($item['name_loc']) && $item['name_loc'] != null) {
+                // GetLocaleID() check is not required here
+                $item['name'] = $item['name_loc'];
+                unset($item['name_loc']);
+            }
+            if($item['Flags2'] & ITEM_FLAGS2_ALLIANCE_ONLY) {
+                $item['side'] = FACTION_ALLIANCE;
+            }
+            elseif($item['Flags2'] & ITEM_FLAGS2_HORDE_ONLY) {
+                $item['side'] = FACTION_HORDE;
+            }
+            else {
+                $item['side'] =3; // Thumb Up, RWJ!
+            }
+            if($item['Flags'] & ITEM_FLAGS_HEROIC) {
+                $item['heroic'] = 1;
+            }
+            if(is_array(WoW_Items::AllowableClasses($item['AllowableClass']))) {
+                $item['reqclass'] = $item['AllowableClass'];
+                unset($item['AllowableClass']);
+            }
+            if(is_array(WoW_Items::AllowableRaces($item['AllowableRace']))) {
+                $item['reqrace'] = $item['AllowableRace'];
+                unset($item['AllowableRace']);
+            }
+            if($item['class'] == ITEM_CLASS_MISC && $item['subclass'] == ITEM_SUBCLASS_JUNK_MOUNT) {
+                $item['modelviewer'] = '{"displayid":' . $item['displayid'] . ',"type": 1,"typeid":11147}';
+            }
+            if(in_array($item['class'], array(ITEM_CLASS_ARMOR, ITEM_CLASS_WEAPON))) {
+                $item['slot'] = $item['slotbak'];
+            }
+            else {
+                unset($item['armor']);
+            }
+            $item['classs'] = $item['class'];
+            unset($item['Flags'], $item['Flags2'], $item['AllowableClass'], $item['AllowableRace']);
+        }
+        return $data;
     }
     
     public static function GetBasicItemInfo($entry) {
