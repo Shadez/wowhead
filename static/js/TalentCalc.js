@@ -1974,7 +1974,7 @@ function TalentCalc() {
                     bx.div.style.display = bx.div2.style.display = "";
                     a9()
                 } else {
-                    $WH.g_ajaxIshRequest(g_host + wowheadUrl + "/data=talents?class=" + bw + "&locale=" + Locale.getId() + "&t=" + g_dataKey + "&" + I)
+                    $WH.g_ajaxIshRequest( wowheadUrl + "/data=talents?class=" + bw + "&locale=" + Locale.getId() + "&t=" + g_dataKey + "&" + I)
                 }
             }
             if (W[au]) {

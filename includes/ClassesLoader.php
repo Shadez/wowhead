@@ -27,7 +27,7 @@ function LoadClasses(&$classes) {
     $errorMessage = null;
     $event_operations = array();
     foreach($classes as $file) {
-        if(!@include(WOW_DIRECTORY . '/includes/' . $file['path'])) {
+        if(!@include($file['path'])) {
             $errorMessage .= '<li><strong>Fatal Error:</strong> Unable to load <b>' . $file['title'] . '</b> (includes/' . $file['path']. ')!</li>';
         }
         else {

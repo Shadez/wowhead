@@ -28,46 +28,59 @@ define('WOW_DIRECTORY', dirname(dirname(__FILE__)));
 if(!defined('WOW_DIRECTORY') || !WOW_DIRECTORY) {
     die('<strong>Fatal Error</strong>: unable to detect directory for system files!');
 }
+define('DS', DIRECTORY_SEPARATOR);
+define('INCLUDES_DIR',    WOW_DIRECTORY . DS . 'includes' . DS);
+define('CLASSES_DIR',     INCLUDES_DIR . 'classes' . DS);
+define('CONFIGS_DIR',     INCLUDES_DIR . 'configs' . DS);
+define('LOCALES_DIR',     INCLUDES_DIR . 'locales' . DS);
+define('TEMPLATES_DIR',   INCLUDES_DIR . 'templates' . DS);
 // Core classes definitions
 $core_files = array(
     array('title' => 'Revision Holder File', 'path' => 'revision_nr.php', 'type' => 'CORE'),
     array('title' => 'Core Defines File', 'path' => 'SharedDefines.php', 'type' => 'CORE'),
-    array('title' => 'Database Configuration File', 'path' => 'configs/DatabaseConfig.php', 'type' => 'CORE'),
-    array('title' => 'Core Configuratin File', 'path' => 'configs/WoWConfig.php', 'type' => 'CORE'),
-    array('title' => 'MySQL Database Class File', 'path' => 'classes/libs/mysqldatabase.php', 'type' => 'CORE'),
-    array('title' => 'Debug Log Class File', 'path' =>  'classes/libs/log.php', 'type' => 'CORE'),
+    array('title' => 'Database Configuration File', 'path' => CONFIGS_DIR . 'DatabaseConfig.php', 'type' => 'CORE'),
+    array('title' => 'Core Configuratin File', 'path' => CONFIGS_DIR . 'WoWConfig.php', 'type' => 'CORE'),
+    array('title' => 'MySQL Database Class File', 'path' => CLASSES_DIR . 'libs' . DS . 'mysqldatabase.php', 'type' => 'CORE'),
+    array('title' => 'Debug Log Class File', 'path' =>  CLASSES_DIR . 'libs' . DS . 'log.php', 'type' => 'CORE'),
     
-    array('title' => 'Database Class File', 'path' =>  'classes/class.db.php', 'type' => 'CORE', 'postLoadEventClass' => 'DB', 'postLoadEventMethod' => 'LoadConfigs'),
-    array('title' => 'Core Class File', 'path' =>  'classes/class.wow.php', 'type' => 'CORE', 'postLoadEventClass' => 'WoW', 'postLoadEventMethod' => 'SelfTests'),
-    array('title' => 'Locale Manager Class File', 'path' =>  'classes/class.locale.php', 'type' => 'CORE'),
-    array('title' => 'Template Manager Class File', 'path' =>  'classes/class.template.php', 'type' => 'CORE')
-);
-// Custom classes definitions
-$custom_classes_files = array(
-    array('title' => 'ItemPrototype Class File', 'path' => 'classes/class.itemprototype.php', 'type' => 'ITEMS'),
-    array('title' => 'Abstract WoW Object Class File', 'path' => 'classes/class.abstract.php', 'type' => 'DATABASE'),
-    array('title' => 'Achievements Class File', 'path' => 'classes/class.achievements.php', 'type' => 'ACHIEVEMENTS'),
-    array('title' => 'Items Class File', 'path' => 'classes/class.items.php', 'type' => 'ITEMS'),
-    array('title' => 'Utils Class File', 'path' => 'classes/class.utils.php', 'type' => 'DATABASE'),
-    array('title' => 'Search Class File', 'path' => 'classes/class.search.php', 'type' => 'SEARCH'),
-    array('title' => 'Quests Class File', 'path' => 'classes/class.quests.php', 'type' => 'QUESTS'),
-    array('title' => 'NPCs Class File', 'path' => 'classes/class.npcs.php', 'type' => 'NPCS')
+    array('title' => 'Database Class File', 'path' =>  CLASSES_DIR . 'class.db.php', 'type' => 'CORE', 'postLoadEventClass' => 'DB', 'postLoadEventMethod' => 'LoadConfigs'),
+    array('title' => 'Core Class File', 'path' =>  CLASSES_DIR . 'class.wow.php', 'type' => 'CORE', 'postLoadEventClass' => 'WoW', 'postLoadEventMethod' => 'SelfTests'),
+    array('title' => 'Locale Manager Class File', 'path' =>  CLASSES_DIR . 'class.locale.php', 'type' => 'CORE'),
+    array('title' => 'Template Manager Class File', 'path' =>  CLASSES_DIR . 'class.template.php', 'type' => 'CORE')
 );
 // Data
 $data_files = array(
-    array('title' => 'Character Classes File', 'path' => 'data/data.classes.php', 'type' => 'DATABASE'),
-    array('title' => 'Character Races File', 'path' => 'data/data.races.php', 'type' => 'DATABASE'),
+    array('title' => 'Character Classes File', 'path' => INCLUDES_DIR . 'data' . DS . 'data.classes.php', 'type' => 'DATABASE'),
+    array('title' => 'Character Races File', 'path' => INCLUDES_DIR . 'data' . DS . 'data.races.php', 'type' => 'DATABASE'),
 );
 // Classes loader
-if(!@include(WOW_DIRECTORY . '/includes/ClassesLoader.php')) {
+if(!@include(INCLUDES_DIR . 'ClassesLoader.php')) {
     die('<strong>Fatal Error:</strong> ClassesLoader.php file was not found, unable to run!');
 }
 // Load core files
 LoadClasses($core_files);
-// Load custom classes
-LoadClasses($custom_classes_files);
 // Load Data
 LoadClasses($data_files);
+// Register autoload method
+spl_autoload_register('WoW_Autoload');
+
+/**
+ * Autoload classes. Do not call this function manually, it will be called automatically.
+ * 
+ * @category WoW Loader
+ * @access   global / public
+ * @param    string $className
+ * @return   void
+ **/
+function WoW_Autoload($className)
+{
+    //prevent error when mailer classes are loaded
+     $className = strtolower(str_replace('WoW_', null, $className));
+     if(!file_exists(CLASSES_DIR . 'class.' . $className . '.php')) {
+         die('<strong>Autoload Fatal Error:</strong> unable to autoload class ' . $className . '!');
+     }
+     include(CLASSES_DIR . 'class.' . $className . '.php');
+}
 // Locale
 if(isset($_GET['locale'])) {
     $_SESSION['wow_locale'] = $_GET['locale'];
