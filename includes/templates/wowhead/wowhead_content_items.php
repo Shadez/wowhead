@@ -29,6 +29,10 @@ echo WoW_Template::GetSelectForm($select_info);
 ?>
 </div>
 
+<?php
+if(!WoW_Items::GetCategory() || in_array(WoW_Items::GetCategory(), array(2, 4)))
+{
+?>
 <div class="rightpanel2">
 <div style="float: left">Slot: </div><small><a href="javascript:;" onclick="document.forms['fi'].elements['sl[]'].selectedIndex = -1; return false" onmousedown="return false">clear</a></small>
 <div class="clear"></div>
@@ -53,6 +57,7 @@ $select_info = array(
 echo WoW_Template::GetSelectForm($select_info);
 ?>
 </div>
+<?php } ?>
 
 <table>
 <tr>

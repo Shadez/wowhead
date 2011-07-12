@@ -54,10 +54,10 @@ if (typeof $WowheadPower == "undefined") {
                 },
                 ag = {
                     3: {
-                        url: "WOWHEAD_URLdata=item-scaling"
+                        url: "/data=item-scaling"
                     },
                     6: {
-                        url: "WOWHEAD_URLdata=spell-scaling"
+                        url: "/data=spell-scaling"
                     }
                 },
                 e = {
@@ -88,7 +88,7 @@ if (typeof $WowheadPower == "undefined") {
             function ab() {
                 if (W) {
                     var aj = document.createElement("script");
-                    aj.src = "WOWHEAD_STATIC_URL/js/basic.js?5";
+                    aj.src = "//static.wowhead.com/js/basic.js?5";
                     t.appendChild(aj)
                 } else {
                     X()
@@ -105,7 +105,7 @@ if (typeof $WowheadPower == "undefined") {
                 if (W) {
                     $WH.ae(t, $WH.ce("link", {
                         type: "text/css",
-                        href: "WOWHEAD_STATIC_URL/css/basic.css?5",
+                        href: "//static.wowhead.com/css/basic.css?5",
                         rel: "stylesheet"
                     }))
                 }
@@ -156,9 +156,9 @@ if (typeof $WowheadPower == "undefined") {
                     al = 3;
                     if (ax.href.indexOf("http://") == 0 || ax.href.indexOf("https://") == 0) {
                         ao = 1;
-                        ak = ax.href.match(/^(http:\/\/.+?)?\?(item|quest|spell|achievement|statistic|npc|object)=([0-9]+)/);
+                        ak = ax.href.match(/^http?:\/\/(.+?)?\.?(?:)\/\??(item|quest|spell|achievement|statistic|npc|object)=([0-9]+)/);
                         if (ak == null) {
-                            ak = ax.href.match(/^(http:\/\/.+?)?\?(profile)=([^&#]+)/)
+                            ak = ax.href.match(/^https?:\/\/(.+?)?\.?(?:)\/\??(profile)=([^&#]+)/)
                         }
                         C = 0
                     } else {
@@ -206,7 +206,7 @@ if (typeof $WowheadPower == "undefined") {
                         am = ap.domain
                     } else {
                         if (ao && ak[ao]) {
-                            am = ak[ao]
+                            am = ak[ao].split(".")[0]
                         } else {
                             if (ar) {
                                 if ($WH.isset("g_beta") && g_beta) {
@@ -349,7 +349,7 @@ if (typeof $WowheadPower == "undefined") {
                 }
                 var ak = "";
                 if (typeof g_dev == "undefined" || !g_dev) {
-                    ak += document.location.protocol + "//" + "WOWHEAD_DOMAIN"
+                    ak += document.location.protocol + "//" + ar + "." + document.domain
                 } else {
                     if (window.location.hostname.indexOf("dev.wowhead.com") != -1) {
                         if (ar != "www" && window.location.hostname.indexOf(ar) != 0) {
@@ -357,50 +357,51 @@ if (typeof $WowheadPower == "undefined") {
                         }
                     }
                 }
-                $WH.g_ajaxIshRequest(ak + "/" + u[at][1] + "=" + an + "&power" + am);
+                $WH.g_ajaxIshRequest(ak + "/" + u[at][1] + "=" + an + "&power" + am + "&pl=" + wowheadLocale);
                 if (ag[at] && !ag[at][au]) {
                     $WH.g_ajaxIshRequest(ak + ag[at].url)
                 }
             }
-            function af(ao, at, aj, ar, aq) {
+            function af(ao, au, aj, at, ar) {
                 if (aa && aa._fixTooltip) {
                     ao = aa._fixTooltip(ao, i, P, aa)
                 }
-                var au = false;
+                var av = false;
                 if (!ao) {
                     ao = u[i][2] + " not found :(";
-                    at = "inv_misc_questionmark";
-                    au = true
+                    au = "inv_misc_questionmark";
+                    av = true
                 } else {
                     if (v != null) {
-                        if (v.forg && v.forg.length == 2) {
-                            var aw = [v.forg[0]];
+                        if (v.forg && $WH.g_reforgeStats[v.forg]) {
+                            var aq = $WH.g_reforgeStats[v.forg];
+                            var ax = [aq.i1];
                             for (var an in $WH.g_individualToGlobalStat) {
-                                if ($WH.g_individualToGlobalStat[an] == aw[0]) {
-                                    aw.push(an)
+                                if ($WH.g_individualToGlobalStat[an] == ax[0]) {
+                                    ax.push(an)
                                 }
                             }
                             var al;
-                            if ((al = ao.match(new RegExp("(<!--(stat|rtg)(" + aw.join("|") + ")-->)[+-]?([0-9]+)"))) && !ao.match(new RegExp("<!--(stat|rtg)" + v.forg[1] + "-->[+-]?[0-9]+"))) {
-                                var av = Math.floor(al[4] * 0.4),
-                                    am = LANG.traits[$WH.g_statToJson[v.forg[1]]][0];
-                                if (v.forg[1] == 6) {
-                                    ao = ao.replace("<!--rs-->", "<br />+" + av + " " + am)
+                            if ((al = ao.match(new RegExp("(<!--(stat|rtg)(" + ax.join("|") + ")-->)[+-]?([0-9]+)"))) && !ao.match(new RegExp("<!--(stat|rtg)" + aq.i2 + "-->[+-]?[0-9]+"))) {
+                                var aw = Math.floor(al[4] * aq.v),
+                                    am = LANG.traits[aq.s2][0];
+                                if (aq.i2 == 6) {
+                                    ao = ao.replace("<!--rs-->", "<br />+" + aw + " " + am)
                                 } else {
-                                    ao = ao.replace("<!--rr-->", $WH.sprintfa(LANG.tooltip_genericrating, am.toLowerCase(), v.forg[1], av))
+                                    ao = ao.replace("<!--rr-->", $WH.sprintfa(LANG.tooltip_genericrating, am.toLowerCase(), aq.i2, aw))
                                 }
-                                ao = ao.replace(al[0], al[1] + (al[4] - av));
-                                ao = ao.replace("<!--rf-->", '<span class="q2">' + LANG.reforged + "</span><br />")
+                                ao = ao.replace(al[0], al[1] + (al[4] - aw));
+                                ao = ao.replace("<!--rf-->", '<span class="q2">' + $WH.sprintfa(LANG.tooltip_reforged, aw, LANG.traits[aq.s1][2], LANG.traits[aq.s2][2]) + "</span><br />")
                             }
                         }
                         if (v.pcs && v.pcs.length) {
-                            var ax = P.match(/^(\d+)/);
-                            ax = ax[1];
+                            var ay = P.match(/^(\d+)/);
+                            ay = ay[1];
                             var ak = 0;
                             for (var an = 0, ap = v.pcs.length; an < ap; ++an) {
                                 var al;
-                                if (al = ao.match(new RegExp("<span><!--si([0-9]+:)*" + v.pcs[an] + '(:[0-9]+)*--><a href="WOWHEAD_URL??item=(\\d+)">(.+?)</a></span>'))) {
-                                    ao = ao.replace(al[0], '<span class="q8"><!--si' + v.pcs[an] + '--><a href="WOWHEAD_URLitem=' + al[3] + '">' + (($WH.isset("g_items") && g_items[v.pcs[an]]) ? g_items[v.pcs[an]]["name_" + e[T]] : al[4]) + "</a></span>");
+                                if (al = ao.match(new RegExp("<span><!--si([0-9]+:)*" + v.pcs[an] + '(:[0-9]+)*--><a href="/??item=(\\d+)">(.+?)</a></span>'))) {
+                                    ao = ao.replace(al[0], '<span class="q8"><!--si' + v.pcs[an] + '--><a href="/item=' + al[3] + '">' + (($WH.isset("g_items") && g_items[v.pcs[an]]) ? g_items[v.pcs[an]]["name_" + e[T]] : al[4]) + "</a></span>");
                                     ++ak
                                 }
                             }
@@ -410,7 +411,7 @@ if (typeof $WowheadPower == "undefined") {
                             }
                         }
                         if (v.know && v.know.length) {
-                            ao = $WH.g_setTooltipSpells(ao, v.know, ar)
+                            ao = $WH.g_setTooltipSpells(ao, v.know, at)
                         }
                         if (v.lvl) {
                             ao = $WH.g_setTooltipLevel(ao, v.lvl, v.buff)
@@ -422,14 +423,14 @@ if (typeof $WowheadPower == "undefined") {
                     }
                 }
                 if (v.map && aj && aj.getMap) {
-                    aq = aj.getMap()
+                    ar = aj.getMap()
                 }
                 if (k == 1) {
                     $WH.Tooltip.setIcon(null);
-                    $WH.Tooltip.show(aa, ao, null, null, null, aq)
+                    $WH.Tooltip.show(aa, ao, null, null, null, ar)
                 } else {
-                    $WH.Tooltip.setIcon(at);
-                    $WH.Tooltip.showAtXY(ao, N, L, s, G, aq)
+                    $WH.Tooltip.setIcon(au);
+                    $WH.Tooltip.showAtXY(ao, N, L, s, G, ar)
                 }
                 if (W && $WH.Tooltip.logo) {
                     $WH.Tooltip.logo.style.display = (C ? "block" : "none")
@@ -479,7 +480,7 @@ if (typeof $WowheadPower == "undefined") {
                     clearTimeout(aj[an].timer);
                     aj[an].timer = null
                 }
-                if (ak.map) {
+                if (!$WH.wowheadRemote && ak.map) {
                     if (aj[an].map == null) {
                         aj[an].map = new Mapper({
                             parent: $WH.ce("div"),

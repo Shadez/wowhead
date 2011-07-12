@@ -22,6 +22,8 @@ Class WoW_Abstract {
     protected static $m_id = 0;
     protected static $m_filter = array();
     protected static $m_count = 0;
+    protected static $m_pageType = '';
+	protected static $m_categoryInfo = array();
     
     public static function GetCount() {
         return self::$m_count;
@@ -37,8 +39,10 @@ Class WoW_Abstract {
         else {
             $cat_data = array($category);
         }
+        self::$m_pageType = $page_type;
         // Max subcats count: 3 - type.cat1.cat2
         $type = (isset($cat_data[0]) && $cat_data[0] !== false) ? $cat_data[0] : -1;
+		self::$m_categoryInfo[0] = $type;
         $breadcrumb = '0,' . self::GetCatIdForPage($page_type);
         // Find category
         for($i = 0; $i < 3; ++$i) {
@@ -47,6 +51,7 @@ Class WoW_Abstract {
                 $class_category = $i > 0 ? $cat_data[$i] : -1;
             }
         }
+		self::$m_categoryInfo[1] = $class_category;
         WoW_Template::SetPageData('breadcrumb', $breadcrumb);
         return true;
     }
@@ -76,6 +81,12 @@ Class WoW_Abstract {
     public static function GetID() {
         return self::$m_id;
     }
+	
+	public static function GetCategory($index = 0) {
+		if ($index < 0 || $index > 1) {
+			return 0;
+		}
+		return self::$m_categoryInfo[$index];
+	}
 }
-
 ?>

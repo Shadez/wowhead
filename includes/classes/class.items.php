@@ -42,6 +42,10 @@ Class WoW_Items extends WoW_Abstract {
                 break;
             case 'item':
                 self::$m_id = (int) $category;
+                self::$m_pageType = 'item';
+                if(strpos(WoW::GetRawPageAction(), '&power')) {
+                    self::GetPower(); // Do not load item here
+                }
                 self::LoadItem();
                 self::HandleItem();
                 break;
@@ -331,6 +335,23 @@ Class WoW_Items extends WoW_Abstract {
     
     private static function HandleItem() {
         self::GenerateItemTooltip();
+    }
+    
+    private static function GetPower() {
+        if(strpos(WoW::GetRawPageAction(), '&pl')) {
+            $data = explode('&', WoW::GetRawPageAction());
+            foreach($data as $it) {
+                $tmp = explode('=', $it);
+                if($tmp[0] == 'pl') {
+                    WoW_Locale::SetLocale($tmp[1], WoW_Locale::GetLocaleIDForLocale($tmp[1]), true);
+                }
+            }
+        }
+        self::LoadItem();
+        self::GenerateItemTooltip();
+        header('Content-type: text/javascript');
+        echo sprintf("\$WowheadPower.registerItem('%d', 0, {\n\tname_enus: '%s',\n\tquality: %d,\n\ticon: '%s',\n\ttooltip_enus: '%s'\n});", self::$m_item->entry, addslashes(self::$m_item->GetName()), self::$m_item->Quality, self::$m_item->icon, addslashes(self::$m_item->tooltip));
+        exit;
     }
     
     private static function GenerateItemTooltip() {

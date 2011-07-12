@@ -83,10 +83,8 @@ function WoW_Autoload($className)
 }
 // Locale
 if(isset($_GET['locale'])) {
-    $_SESSION['wow_locale'] = $_GET['locale'];
-    $_SESSION['wow_locale_id'] = WoW_Locale::GetLocaleIDForLocale($_SESSION['wow_locale']);
-    if(WoW_Locale::IsLocale($_SESSION['wow_locale'], $_SESSION['wow_locale_id'])) {
-        WoW_Locale::SetLocale($_SESSION['wow_locale'], $_SESSION['wow_locale_id']);
+    if(WoW_Locale::IsLocale($_GET['locale'], WoW_Locale::GetLocaleIDForLocale($_GET['locale']))) {
+        WoW_Locale::SetLocale($_GET['locale'], WoW_Locale::GetLocaleIDForLocale($_GET['locale']));
         if(isset($_SERVER['HTTP_REFERER'])) {
             header('Location: ' . $_SERVER['HTTP_REFERER']);
             exit;
@@ -98,8 +96,8 @@ if(isset($_GET['locale'])) {
     }
 }
 // Load locale
-if(isset($_SESSION['wow_locale']) && WoW_Locale::IsLocale($_SESSION['wow_locale'], $_SESSION['wow_locale_id'])) {
-    WoW_Locale::SetLocale($_SESSION['wow_locale'], $_SESSION['wow_locale_id']);
+if(isset($_COOKIE['wow_locale']) && WoW_Locale::IsLocale($_COOKIE['wow_locale'], $_COOKIE['wow_locale_id'])) {
+    WoW_Locale::SetLocale($_COOKIE['wow_locale'], $_COOKIE['wow_locale_id']);
 }
 else {
     WoW_Locale::SetLocale(WoWConfig::$DefaultLocale, WoWConfig::$DefaultLocaleID);

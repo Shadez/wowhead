@@ -29,6 +29,10 @@ Class WoW_Locale {
         if($load_locale) {
             self::LoadLocale();
         }
+        setcookie('wow_locale', self::$locale_name, strtotime('NEXT YEAR'), '/');
+        $_COOKIE['wow_locale'] = self::$locale_name;
+        setcookie('wow_locale_id', self::$locale_id, strtotime('NEXT YEAR'), '/');
+        $_COOKIE['wow_locale_id'] = self::$locale_id;
     }
     
     public static function GetLocale($type = LOCALE_SINGLE) {

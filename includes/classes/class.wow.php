@@ -108,6 +108,10 @@ Class WoW {
         return self::$m_action;
     }
     
+    public static function GetRawPageAction() {
+        return $_SERVER['REQUEST_URI'];
+    }
+    
     private static function RunWoW() {
        // echo self::GetPageID();
        // die;

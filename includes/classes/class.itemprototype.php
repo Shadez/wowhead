@@ -333,7 +333,7 @@ Class WoW_ItemPrototype {
         for($i = 0; $i < MAX_ITEM_PROTO_DAMAGES; $i++) {
             $temp += $this->Damage[$i]['min'] + $this->Damage[$i]['max'];
         }
-        return $temp * 500 / $this->delay;
+        return round($temp * 500 / $this->delay, 2);
     }
     
     // Not used now.
