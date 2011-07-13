@@ -20,11 +20,31 @@
 
 Class WoW_Template {
     private static $is_initialized = false;
+    private static $isErrorPage = false;
     private static $page_index = null;
     private static $page_data = array();
     private static $main_menu = array();
     private static $menu_index = null;
     private static $template_theme = null;
+    private static $pageAnnouncementId = -1;
+    
+    public static function SetPageAnnouncement($id) {
+        self::$pageAnnouncementId = $id >= 0 ? $id : -1;
+    }
+    
+    public static function GetPageAnnouncement() {
+        return self::$pageAnnouncementId;
+    }
+    
+    public static function ErrorPage($code, $type) {
+        self::$isErrorPage = true;
+        self::SetPageAnnouncement(0);
+        self::SetPageIndex('error');
+    }
+    
+    public static function IsErrorPage() {
+        return self::$isErrorPage;
+    }
     
     public static function InitTemplate() {
         
@@ -39,6 +59,9 @@ Class WoW_Template {
     }
     
     public static function LoadTemplate($template_name, $overall = false) {
+        if(self::$isErrorPage) {
+            //return true;
+        }
         if($overall) {
             $template = WOW_DIRECTORY . '/includes/templates/overall/overall_' . $template_name . '.php';
         }

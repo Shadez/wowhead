@@ -77,6 +77,10 @@ Class WoW_NPCs extends WoW_Abstract {
             self::$m_npc_classification > 0 ? 'AND `a`.`type` = ' . self::$m_npc_classification : null
             
         );
+        if(!self::$m_npcs) {
+            WoW_Template::ErrorPage(404, 'npcs');
+            return false;
+        }
         self::$m_count = DB::World()->selectCell("SELECT COUNT(*) FROM `creature_template`"); //TODO: check additional filter fields
     }
     
@@ -92,6 +96,9 @@ Class WoW_NPCs extends WoW_Abstract {
             WoW_Locale::GetLocaleID() != LOCALE_EN ? 'LEFT JOIN `locales_creature` AS `b` ON `b`.`entry` = `a`.`entry`' : null,
             self::GetID()
         );
+        if(!self::$m_npc) {
+            WoW_Template::ErrorPage(404, 'npc');
+        }
     }
     
     private static function HandleNPCs() {
@@ -132,7 +139,51 @@ Class WoW_NPCs extends WoW_Abstract {
         }
         WoW_Template::SetPageData('db_page_title', self::$m_npc['name'] . ' - ');
         self::$m_npc['zone_info'] = WoW_Utils::GetNpcAreaInfo(self::$m_npc['entry']);
-        
+        if(is_array(self::$m_npc['zone_info'])) {
+            $zone = &self::$m_npc['zone_info'];
+            if(WoW_Locale::GetLocaleID() != LOCALE_EN && $zone['zoneName_loc'] != null) {
+                $zone['zoneName'] = $zone['zoneName_loc'];
+            }
+            unset($zone['zoneName_loc']);
+        }
+        else {
+            unset(self::$m_npc['zone_info']);
+        }
+        if(self::$m_npc['minlevel'] == self::$m_npc['maxlevel']) {
+            if(self::$m_npc['minlevel'] == (MAX_PLAYER_LEVEL + 3)) {
+                self::$m_npc['level'] = '??';
+            }
+            else {
+                self::$m_npc['level'] = self::$m_npc['minlevel'];
+            }
+        }
+        else {
+            self::$m_npc['level'] = self::$m_npc['maxlevel'];
+        }
+        if(self::$m_npc['minhealth'] == self::$m_npc['maxhealth']) {
+            self::$m_npc['health'] = number_format(self::$m_npc['minhealth']);
+        }
+        else {
+            self::$m_npc['health'] = number_format(self::$m_npc['minhealth']) . ' - ' . number_format(self::$m_npc['maxhealth']);
+        }
+        self::$m_npc['money'] = 0;
+        if(self::$m_npc['mingold'] > 0 || self::$m_npc['maxgold'] > 0) {
+            self::$m_npc['money'] = max(self::$m_npc['mingold'], self::$m_npc['maxgold']);
+        }
+        // Loot
+        self::$m_npc['loot'] = self::GetNpcLoot(self::$m_npc['entry']);
+        // Spells
+        self::$m_npc['spells'] = self::GetNpcSpells(self::$m_npc['entry']);
+        // Achievements
+        self::$m_npc['achievements'] = self::GetNpcAchievements(self::$m_npc['entry']);
+        // Same model as
+        $model_id = array();
+        for($i = 1; $i < 5; ++$i) {
+            if(self::$m_npc['modelid_' . $i] > 0) {
+                $model_id[] = self::$m_npc['modelid_' . $i];
+            }
+        }
+        self::$m_npc['npcs'] = self::GetNpcSameModel($model_id, self::$m_npc['entry']);
     }
     
     public static function GetNPCs() {
@@ -141,6 +192,168 @@ Class WoW_NPCs extends WoW_Abstract {
     
     public static function GetNPC() {
         return self::$m_npc;
+    }
+    
+    public static function GetNpcSameModel($modelId, $entry) {
+        $creatures = DB::World()->select("
+        SELECT
+        `a`.`entry`,
+        `a`.`name`,
+        `a`.`minlevel`,
+        `a`.`maxlevel`,
+        `a`.`rank`,
+        `a`.`type`,
+        %s
+        FROM `creature_template` AS `a`
+        %s
+        WHERE
+        (`a`.`modelid_1` IN (%s) OR `a`.`modelid_2` IN (%s) OR `a`.`modelid_3` IN (%s) OR `a`.`modelid_4` IN (%s))
+        AND
+        `a`.`entry` NOT IN (%s)
+        LIMIT 200",
+            WoW_Locale::GetLocaleID() != LOCALE_EN ? '`b`.`name_loc' . WoW_Locale::GetLocaleID() . '` AS `name_loc`' : 'NULL',
+            WoW_Locale::GetLocaleID() != LOCALE_EN ? 'LEFT JOIN `locales_creature` AS `b` ON `b`.`entry` = `a`.`entry`' : null,
+            $modelId, $modelId, $modelId, $modelId,
+            $entry
+        );
+        if(!$creatures) {
+            return false;
+        }
+        foreach($creatures as &$cr) {
+            if(WoW_Locale::GetLocaleID() != LOCALE_EN) {
+                if($cr['name_loc'] != null) {
+                    $cr['name'] = $cr['name_loc'];
+                }
+            }
+            $cr['zone_info'] = WoW_Utils::GetNpcAreaInfo($cr['entry']);
+        }
+        return $creatures;
+    }
+    
+    public static function GetNpcAchievements($entry) {
+        return DB::World()->select("
+        SELECT
+        `a`.`referredAchievement`,
+        `b`.`id`,
+        `b`.`name_%s` AS `name`,
+        `b`.`desc_%s` AS `desc`,
+        `b`.`factionFlag` AS `side`,
+        `b`.`categoryId` AS `category`,
+        `b`.`points`,
+        `c`.`icon`,
+        `d`.`parentCategory`
+        FROM `DBPREFIX_achievement_criteria` AS `a`
+        LEFT JOIN `DBPREFIX_achievement` AS `b` ON `b`.`id` = `a`.`referredAchievement`
+        LEFT JOIN `DBPREFIX_spell_icon` AS `c` ON `c`.`id` = `b`.`iconID`
+        LEFT JOIN `DBPREFIX_achievement_category` AS `d` ON `d`.`id` = `b`.`categoryId`
+        WHERE `a`.`requiredType` = 0 AND `a`.`data` IN (%s) AND `a`.`value` > 0
+        LIMIT 200",
+            WoW_Locale::GetLocale(),
+            WoW_Locale::GetLocale(),
+            $entry
+        );
+    }
+    
+    public static function GetNpcSpells($entry) {
+        $cr_spells = DB::World()->select("SELECT `spell1`, `spell2`, `spell3`, `spell4` FROM `creature_template` WHERE `entry` IN (%)", $entry);
+        if(!$cr_spells) {
+            return false;
+        }
+        $spell_id = array();
+        foreach($cr_spells as $spell) {
+            for($i = 1; $i < 5; ++$i) {
+                if($spell['spell' . $i] > 0) {
+                    $spell_id[] = $spell['spell' . $i];
+                }
+            }
+        }
+        if(count($spell_id) == 0) {
+            return false;
+        }
+        $spells = DB::World()->select("
+        SELECT
+        `a`.`id`
+        `a`.`SpellName_en` AS `name`,
+        `a`.`SpellName_%s` AS `name_locale`,
+        `a`.`Rank_1` AS `rank`,
+        `a`.`Rank_%s` AS `rank_locale`,
+        `a`.`spellLevel` AS `level`,
+        `a`.`SchoolMask`,
+        `b`.`icon`
+        FROM `DBPREFIX_spell` AS `a`
+        LEFT JOIN `DBPREFIX_spell_icon` AS `b` ON `b`.`id` = `a`.`SpellIconID`
+        WHERE `a`.`id` IN (%s)
+        LIMIT 200
+        ",
+            WoW_Locale::GetLocale(),
+            WoW_Locale::GetLocale(),
+            $spell_id
+        );
+        if(!$spells) {
+            return false;
+        }
+        $schools = array(
+            'NORMAL', 'HOLY', 'FIRE', 'NATURE', 'FROST', 'SHADOW', 'ARCANE'
+        );
+        foreach($spells as &$spell) {
+            if(WoW_Locale::GetLocaleID() != LOCALE_EN) {
+                if($spell['name_locale'] != null) {
+                    $spell['name'] = $spell['name_locale'];
+                }
+                if($spell['rank_locale'] != null) {
+                    $spell['rank'] = $spell['rank_locale'];
+                }
+            }
+            unset($spell['name_locale'], $spell['rank_locale']);
+            $spell['school'] = 0;
+            foreach($schools as $school) {
+                if($spell['SchoolMask'] & constant('SPELL_SCHOOL_MASK_' . $school)) {
+                    $spell['school'] = constant('SPELL_SCHOOL_' . $school);
+                }
+            }
+        }
+        return $spells;
+    }
+    
+    public static function GetNpcLoot($entry) {
+        $loot = DB::World()->select("
+        SELECT
+        `a`.`item`,
+        `b`.`entry`,
+        `b`.`name`,
+        `b`.`class`,
+        `b`.`subclass`,
+        `b`.`displayid`,
+        `b`.`Quality` AS `quality`,
+        `b`.`ItemLevel`,
+        `b`.`RequiredLevel` AS `reqLevel`,
+        `b`.`InventoryType`,
+        `b`.`Flags`,
+        `b`.`armor`,
+        `c`.`icon`,
+        %s
+        FROM `creature_loot_template` AS `a`
+        LEFT JOIN `item_template` AS `b` ON `b`.`entry` = `a`.`item`
+        LEFT JOIN `DBPREFIX_icons` AS `c` ON `c`.`displayid` = `b`.`displayid`
+        %s
+        WHERE `a`.`entry` IN (%s)
+        LIMIT 200",
+            WoW_Locale::GetLocaleID() != LOCALE_EN ? '`x`.`name_loc' . WoW_Locale::GetLocaleID() . '` AS `name_loc`' : 'NULL',
+            WoW_Locale::GetLocaleID() != LOCALE_EN ? 'LEFT JOIN `locales_item` AS `x` ON `x`.`entry` = `a`.`item`' : null,
+            $entry
+        );
+        if(!$loot) {
+            return false;
+        }
+        if(WoW_Locale::GetLocaleID() != LOCALE_EN) {
+            foreach($loot as &$item) {
+                if(isset($item['name_loc']) && $item['name_loc'] != null) {
+                    $item['name'] = $item['name_loc'];
+                    unset($item['name_loc']);
+                }
+            }
+        }
+        return $loot;
     }
 }
 ?>

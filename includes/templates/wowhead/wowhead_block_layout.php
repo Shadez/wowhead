@@ -28,9 +28,14 @@
 <div class="main" id="main">
 <div class="main-precontents" id="main-precontents"></div>
 <div class="main-contents" id="main-contents">
+<?php
+if(WoW_Template::GetPageAnnouncement() >= 0) {
+    echo '<div id="announcement-' . WoW_Template::GetPageAnnouncement() . '"></div>';
+}
+?>
 
 <?php
-if(WoW::IsRegisteredPage()) {
+if(WoW::IsRegisteredPage() && !WoW_Template::IsErrorPage()) {
     WoW_Template::LoadTemplate('block_set_page_template');
     // LOAD APPROPRIATE TEMPLATE FOR EACH REGISTERED PAGE HERE!
     WoW_Template::LoadTemplate('content_' . WoW_Template::GetPageIndex());

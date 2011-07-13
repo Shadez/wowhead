@@ -314,6 +314,14 @@ $WoW_Locale = array(
     'template_quest_obj_players_slain' => 'Players Slain&nbsp;(%d)',
     
     'template_search_header' => 'Search Results for',
+    'template_npc_can_be_found' => 'This NPC can be found in',
+    'template_npc_level' => 'Level:',
+    'template_npc_classification' => 'Classification:',
+    'template_npc_classification_4' => 'Rare',
+    'template_npc_classification_3' => 'Boss',
+    'template_npc_classification_2' => 'Rare Elite',
+    'template_npc_classification_1' => 'Elite',
+    'template_npc_health' => 'Health:',
+    'template_npc_worth' => 'Worth:',
 );
-
 ?>

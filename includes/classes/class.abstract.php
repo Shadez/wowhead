@@ -41,14 +41,14 @@ Class WoW_Abstract {
         }
         self::$m_pageType = $page_type;
         // Max subcats count: 3 - type.cat1.cat2
-        $type = (isset($cat_data[0]) && $cat_data[0] !== false) ? $cat_data[0] : -1;
+        $type = (isset($cat_data[0]) && $cat_data[0] !== false) ? $cat_data[0] : false;
 		self::$m_categoryInfo[0] = $type;
         $breadcrumb = '0,' . self::GetCatIdForPage($page_type);
         // Find category
         for($i = 0; $i < 3; ++$i) {
-            if(isset($cat_data[$i]) && $cat_data[$i] > 0) {
+            if(isset($cat_data[$i]) && $cat_data[$i] >= 0) {
                 $breadcrumb .= ',' . $cat_data[$i];
-                $class_category = $i > 0 ? $cat_data[$i] : -1;
+                $class_category = $i >= 0 ? $cat_data[$i] : false;
             }
         }
 		self::$m_categoryInfo[1] = $class_category;
@@ -84,9 +84,25 @@ Class WoW_Abstract {
 	
 	public static function GetCategory($index = 0) {
 		if ($index < 0 || $index > 1) {
-			return 0;
+			return false;
 		}
 		return self::$m_categoryInfo[$index];
 	}
+    
+    protected static function IsPower() {
+        return strpos(WoW::GetRawPageAction(), '&power');
+    }
+    
+    protected static function SetPowerLocale() {
+        if(strpos(WoW::GetRawPageAction(), '&pl')) {
+            $data = explode('&', WoW::GetRawPageAction());
+            foreach($data as $it) {
+                $tmp = explode('=', $it);
+                if($tmp[0] == 'pl') {
+                    WoW_Locale::SetLocale($tmp[1], WoW_Locale::GetLocaleIDForLocale($tmp[1]), true);
+                }
+            }
+        }
+    }
 }
 ?>

@@ -30,7 +30,7 @@ echo WoW_Template::GetSelectForm($select_info);
 </div>
 
 <?php
-if(!WoW_Items::GetCategory() || in_array(WoW_Items::GetCategory(), array(2, 4)))
+if(WoW_Items::GetCategory() === false || in_array(WoW_Items::GetCategory(), array(2, 4)))
 {
 ?>
 <div class="rightpanel2">

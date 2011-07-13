@@ -311,5 +311,15 @@ $WoW_Locale = array(
     'template_quest_obj_players_slain' => 'Убито игроков&nbsp;(%d)',
     
     'template_search_header' => 'Результаты поиска ',
+    
+    'template_npc_can_be_found' => 'Этот НИП может быть найден в следующих зонах:',
+    'template_npc_level' => 'Уровень:',
+    'template_npc_classification' => 'Тип:',
+    'template_npc_classification_4' => 'Редкий',
+    'template_npc_classification_3' => 'Босс',
+    'template_npc_classification_2' => 'Редкий Элитный',
+    'template_npc_classification_1' => 'Элитный',
+    'template_npc_health' => 'Здоровье:',
+    'template_npc_worth' => 'Деньги:',
 );
 ?>

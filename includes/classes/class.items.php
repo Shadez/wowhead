@@ -43,7 +43,7 @@ Class WoW_Items extends WoW_Abstract {
             case 'item':
                 self::$m_id = (int) $category;
                 self::$m_pageType = 'item';
-                if(strpos(WoW::GetRawPageAction(), '&power')) {
+                if(self::IsPower()) {
                     self::GetPower(); // Do not load item here
                 }
                 self::LoadItem();
@@ -212,11 +212,18 @@ Class WoW_Items extends WoW_Abstract {
         %s
         ORDER BY `ItemLevel` DESC
         LIMIT 200", 'Flags2', WoW_Locale::GetLocaleID() > 0 ? sprintf('`b`.`name_loc%d` AS `name_loc`,', WoW_Locale::GetLocaleID()) : null, $filter != null ? 'WHERE ' . $filter : null);
+        if(!self::$m_items) {
+            WoW_Template::ErrorPage(404, 'items');
+        }
     }
     
     private static function LoadItem() {
         self::$m_item = new WoW_ItemPrototype();
         self::$m_item->LoadItem(self::GetID());
+        if(!self::$m_item->entry || self::$m_item->entry == 0) {
+            WoW_Template::ErrorPage(404, 'item');
+            return false;
+        }
         self::HandleItem();
     }
     
@@ -338,25 +345,17 @@ Class WoW_Items extends WoW_Abstract {
     }
     
     private static function GetPower() {
-        if(strpos(WoW::GetRawPageAction(), '&pl')) {
-            $data = explode('&', WoW::GetRawPageAction());
-            foreach($data as $it) {
-                $tmp = explode('=', $it);
-                if($tmp[0] == 'pl') {
-                    WoW_Locale::SetLocale($tmp[1], WoW_Locale::GetLocaleIDForLocale($tmp[1]), true);
-                }
-            }
-        }
+        self::SetPowerLocale();
         self::LoadItem();
         self::GenerateItemTooltip();
         header('Content-type: text/javascript');
-        echo sprintf("\$WowheadPower.registerItem('%d', 0, {\n\tname_enus: '%s',\n\tquality: %d,\n\ticon: '%s',\n\ttooltip_enus: '%s'\n});", self::$m_item->entry, addslashes(self::$m_item->GetName()), self::$m_item->Quality, self::$m_item->icon, addslashes(self::$m_item->tooltip));
+        echo sprintf("\$WowheadPower.registerItem('%d', 0, {\n\tname_enus: '%s',\n\tquality: %d,\n\ticon: '%s',\n\ttooltip_enus: '%s'\n});", self::$m_item->entry, self::$m_item->GetName(), self::$m_item->Quality, self::$m_item->icon, self::$m_item->tooltip);
         exit;
     }
     
     private static function GenerateItemTooltip() {
         $proto = self::GetItem();
-        if(!$proto) {
+        if(!$proto || $proto->entry == 0) {
             return false;
         }
         $tooltip_buffer = '';
@@ -514,7 +513,7 @@ Class WoW_Items extends WoW_Abstract {
         }
         if($proto->SellPrice > 0) {
             $money = WoW_Utils::GetMoneyFormat($proto->SellPrice);
-            $tooltip_buffer .= sprintf('%s <span class="moneygold">%d</span> <span class="moneysilver">%d</span> <span class="moneycopper">%d</span>', WoW_Locale::GetString('template_item_sell_price'), $money['gold'], $money['silver'], $money['copper']);
+            $tooltip_buffer .= sprintf('%s %s%s%s', WoW_Locale::GetString('template_item_sell_price'), ($money['gold'] > 0 ? ' <span class="moneygold">' . $money['gold'] . '</span>' : null), ($money['silver'] > 0 ? ' <span class="moneysilver">' . $money['silver'] . '</span>' : null), ($money['copper'] > 0 ? '<span class="moneycopper">' . $money['copper'] . '</span>' : null));
         }
         $tooltip_buffer .= sprintf('</td></tr></table><!--?%d:1:%d:%d-->', $proto->entry, MAX_PLAYER_LEVEL, $proto->RequiredLevel);
         self::$m_item->tooltip = $tooltip_buffer;
