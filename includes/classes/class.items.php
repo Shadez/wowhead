@@ -195,13 +195,12 @@ Class WoW_Items extends WoW_Abstract {
         %s
         `c`.`icon`
         FROM `item_template` AS `a`
-        %s
+        LEFT JOIN `locales_item` AS `b` ON `b`.`entry` = `a`.`entry`
         LEFT JOIN `DBPREFIX_icons` AS `c` ON `c`.`displayid` = `a`.`displayid`
         %s
         ORDER BY `ItemLevel` DESC
         LIMIT 200", 'Flags2',
             WoW_Locale::GetLocaleID() != LOCALE_EN ? sprintf('`b`.`name_loc%d` AS `name_loc`,', WoW_Locale::GetLocaleID()) : null,
-            WoW_Locale::GetLocaleID() != LOCALE_EN ? 'LEFT JOIN `locales_item` AS `b` ON `b`.`entry` = `a`.`entry`' : null,
             $filter != null ? 'WHERE ' . $filter : null
         );
         if(!self::$m_items) {
