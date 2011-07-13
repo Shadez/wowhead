@@ -160,18 +160,6 @@ Class WoW_Items extends WoW_Abstract {
         return $filter_string;
     }
     
-    private static function ApplyMultiFiltersToString(&$val_count, &$filter, &$filter_string) {
-        for($i = 0; $i < $val_count; ++$i) {
-            $filter_string .= $filter['values'][$i];
-            if($i < ($val_count-1)) {
-                if(isset($filter['values'][$i + 1]) && $filter['values'][$i + 1] != null) {
-                    $filter_string .= ', ';
-                }
-            }
-        }
-        $filter_string .= ')';
-    }
-    
     private static function LoadItems() {
         $filter = self::GetFiltersForItems();
         self::$m_items = DB::World()->select("
@@ -207,11 +195,15 @@ Class WoW_Items extends WoW_Abstract {
         %s
         `c`.`icon`
         FROM `item_template` AS `a`
-        LEFT JOIN `locales_item` AS `b` ON `b`.`entry` = `a`.`entry`
+        %s
         LEFT JOIN `DBPREFIX_icons` AS `c` ON `c`.`displayid` = `a`.`displayid`
         %s
         ORDER BY `ItemLevel` DESC
-        LIMIT 200", 'Flags2', WoW_Locale::GetLocaleID() > 0 ? sprintf('`b`.`name_loc%d` AS `name_loc`,', WoW_Locale::GetLocaleID()) : null, $filter != null ? 'WHERE ' . $filter : null);
+        LIMIT 200", 'Flags2',
+            WoW_Locale::GetLocaleID() != LOCALE_EN ? sprintf('`b`.`name_loc%d` AS `name_loc`,', WoW_Locale::GetLocaleID()) : null,
+            WoW_Locale::GetLocaleID() != LOCALE_EN ? 'LEFT JOIN `locales_item` AS `b` ON `b`.`entry` = `a`.`entry`' : null,
+            $filter != null ? 'WHERE ' . $filter : null
+        );
         if(!self::$m_items) {
             WoW_Template::ErrorPage(404, 'items');
         }

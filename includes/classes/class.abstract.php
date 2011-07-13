@@ -104,5 +104,17 @@ Class WoW_Abstract {
             }
         }
     }
+    
+    protected static function ApplyMultiFiltersToString(&$val_count, &$filter, &$filter_string) {
+        for($i = 0; $i < $val_count; ++$i) {
+            $filter_string .= $filter['values'][$i];
+            if($i < ($val_count-1)) {
+                if(isset($filter['values'][$i + 1]) && $filter['values'][$i + 1] != null) {
+                    $filter_string .= ', ';
+                }
+            }
+        }
+        $filter_string .= ')';
+    }
 }
 ?>

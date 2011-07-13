@@ -48,7 +48,35 @@ Class WoW_NPCs extends WoW_Abstract {
         return true;
     }
     
+    private static function GetFilterForNPCs() {
+        $filter_string = null;
+        $andOr = 1;
+        $all_filters = WoW::GetFilters();
+        if(is_array($all_filters)) {
+            foreach($all_filters as $filter) {
+                if(!isset($filter['key']) || !isset($filter['values'])) {
+                    continue;
+                }
+                $val_count = count($filter['values']);
+                switch($filter['key']) {
+                    // Family
+                    case 'fa': 
+                        if($val_count == 1) {
+                            $filter_string .= '{COND} `a`.`family` = ' . $filter['values'][0];
+                        }
+                        else {
+                            $filter_string .= '{COND} `a`.`family` IN (';
+                            self::ApplyMultiFiltersToString($val_count, $filter,  $filter_string);
+                        }
+                        break;
+                }
+            }
+        }
+        return str_replace('{COND}', $andOr == 2 ? 'OR' : 'AND', $filter_string);
+    }
+    
     private static function LoadNPCs() {
+        $filter = self::GetFilterForNPCs();
         self::$m_npcs = DB::World()->select("
         SELECT
         `a`.`entry`,
@@ -64,7 +92,10 @@ Class WoW_NPCs extends WoW_Abstract {
         %s
         FROM `creature_template` AS `a`
         %s
-        WHERE %s NOT LIKE '%s' AND %s NOT LIKE '%s'
+        WHERE (
+            %s NOT LIKE '%s' AND %s NOT LIKE '%s'
+            %s
+        )
         %s
         ORDER BY `a`.`rank` DESC
         LIMIT 200",
@@ -74,12 +105,13 @@ Class WoW_NPCs extends WoW_Abstract {
             '%(%',
             WoW_Locale::GetLocaleID() != LOCALE_EN ? '`d`.`name_loc' . WoW_Locale::GetLocaleID() . '`' : '`a`.`name`',
             '%[%',
-            self::$m_npc_classification > 0 ? 'AND `a`.`type` = ' . self::$m_npc_classification : null
+            self::$m_npc_classification > 0 ? 'AND `a`.`type` = ' . self::$m_npc_classification : null,
+            $filter != null ? $filter : null
             
         );
         if(!self::$m_npcs) {
-            WoW_Template::ErrorPage(404, 'npcs');
-            return false;
+            //WoW_Template::ErrorPage(404, 'npcs');
+            //return false;
         }
         self::$m_count = DB::World()->selectCell("SELECT COUNT(*) FROM `creature_template`"); //TODO: check additional filter fields
     }
