@@ -1748,18 +1748,15 @@ var mn_achievements = [
     [1, "Character Achievements", , [
         [92, "General"],
         [96, "Quests", , [
-            [14861, "Eastern Kingdoms"],
-            [15081, "Kalimdor"],
-            [14862, "Outland"],
-            [14863, "Northrend"],
-            [15070, "Cataclysm"]
+            [14861, "Classic"],
+            [14862, "The Burning Crusade"],
+            [14863, "Wrath of the Lich King"]
         ]],
         [97, "Exploration", , [
             [14777, "Eastern Kingdoms"],
             [14778, "Kalimdor"],
             [14779, "Outland"],
-            [14780, "Northrend"],
-            [15069, "Cataclysm"]
+            [14780, "Northrend"]
         ]],
         [95, "Player vs. Player", , [
             [165, "Arena"],
@@ -1769,31 +1766,31 @@ var mn_achievements = [
             [14804, "Warsong Gulch"],
             [14881, "Strand of the Ancients"],
             [14901, "Wintergrasp"],
-            [15003, "Isle of Conquest"],
-            [15073, "Battle for Gilneas"],
-            [15074, "Twin Peaks"],
-            [15075, "Tol Barad"],
-            [15092, "Rated Battleground"]
+            [15003, "Isle of Conquest"]
         ]],
         [168, "Dungeons & Raids", , [
             [14808, "Classic"],
             [14805, "The Burning Crusade"],
             [14806, "Lich King Dungeon"],
-            [14922, "Lich King Raid"],
-            [15067, "Cataclysm Dungeon"],
-            [15068, "Cataclysm Raid"]
+            [14921, "Lich King Heroic"],
+            [14922, "Lich King 10-Player Raid"],
+            [14923, "Lich King 25-Player Raid"],
+            [14961, "Secrets of Ulduar 10-Player Raid"],
+            [14962, "Secrets of Ulduar 25-Player Raid"],
+            [15001, "Call of the Crusade 10-Player Raid"],
+            [15002, "Call of the Crusade 25-Player Raid"],
+            [15041, "Fall of the Lich King 10-Player Raid"],
+            [15042, "Fall of the Lich King 25-Player Raid"]
         ]],
         [169, "Professions", , [
             [170, "Cooking"],
             [171, "Fishing"],
-            [172, "First Aid"],
-            [15071, "Archaeology"]
+            [172, "First Aid"]
         ]],
         [201, "Reputation", , [
             [14864, "Classic"],
             [14865, "The Burning Crusade"],
-            [14866, "Wrath of the Lich King"],
-            [15072, "Cataclysm"]
+            [14866, "Wrath of the Lich King"]
         ]],
         [155, "World Events", , [
             [160, "Lunar Festival"],
@@ -1836,8 +1833,7 @@ var mn_achievements = [
             [14823, "Wrath of the Lich King"],
             [14963, "Secrets of Ulduar"],
             [15021, "Call of the Crusade"],
-            [15062, "Fall of the Lich King"],
-            [15096, "Cataclysm"]
+            [15062, "Fall of the Lich King"]
         ]],
         [132, "Skills", , [
             [178, "Secondary Skills"],
