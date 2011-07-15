@@ -99,6 +99,9 @@ Class WoW_Abstract {
             foreach($data as $it) {
                 $tmp = explode('=', $it);
                 if($tmp[0] == 'pl') {
+					if (!$tmp[1] || !WoW_Locale::IsLocale($tmp[1], WoW_Locale::GetLocaleIDForLocale($tmp[1]))) {
+						$tmp[1] = 'enus';
+					}
                     WoW_Locale::SetLocale($tmp[1], WoW_Locale::GetLocaleIDForLocale($tmp[1]), true);
                 }
             }

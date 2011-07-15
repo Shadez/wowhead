@@ -323,5 +323,9 @@ $WoW_Locale = array(
     'template_npc_classification_1' => 'Elite',
     'template_npc_health' => 'Health:',
     'template_npc_worth' => 'Worth:',
+    
+    'template_achievement_criteria' => 'Criteria:',
+    'template_achievement_slain' => 'slain',
+    'template_achievement_title_reward' => 'You shall be granted the title "<a href="' . WoW::GetWoWPath() . '/title=%d">%s</a>"'
 );
 ?>

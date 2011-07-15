@@ -321,5 +321,9 @@ $WoW_Locale = array(
     'template_npc_classification_1' => 'Элитный',
     'template_npc_health' => 'Здоровье:',
     'template_npc_worth' => 'Деньги:',
+
+    'template_achievement_criteria' => 'Критерий:',
+    'template_achievement_slain' => 'убито',
+    'template_achievement_title_reward' => 'Наградное звание: <a href="' . WoW::GetWoWPath() . '/title=%d">%s</a>',
 );
 ?>

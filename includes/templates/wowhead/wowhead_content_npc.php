@@ -9,7 +9,7 @@ var _ = g_users;
 var lv_screenshots = [];
 var lv_videos = [];
 var lv_links = [];
-var g_pageInfo = {type: 1, typeId: <?php echo $npc['entry']; ?>, name: '<?php echo $npc['name']; ?>'};
+var g_pageInfo = {type: 1, typeId: <?php echo $npc['entry']; ?>, name: '<?php echo str_replace("'", "\'", $npc['name']); ?>'};
 PageTemplate.set({breadcrumb: [0,4,<?php echo $npc['type']; ?>,0]});
 //]]></script>
 
@@ -53,7 +53,7 @@ Markup.printHtml("<?php echo $quickFacts; ?>", "sdhafcuvh0", { allow: Markup.CLA
 <div class="text">
 
 <a href="javascript:;" id="dsgndslgn464d" class="button-red" onclick="this.blur(); ModelViewer.show({ type: 1, typeId: <?php echo $npc['entry']; ?>, displayId: <?php echo $npc['modelid_1']; ?> })"><em><b><i>View in 3D</i></b><span>View in 3D</span></em></a>
-<h1><?php echo $npc['name']; echo $npc['subname'] != null ? '&lt;' . $npc['subname'] . '&gt;' : null; ?> </h1>
+<h1><?php echo $npc['name']; echo $npc['subname'] != null ? ' &lt;' . $npc['subname'] . '&gt;' : null; ?> </h1>
 <?php
 if(isset($npc['zone_info'])) {
     echo '<div>' . WoW_Locale::GetString('template_npc_can_be_found') . ' <span id="locations"><a href="javascript:;" onclick="myMapper.update({zone: ' . $npc['zone_info']['areaID'] . '}); g_setSelectedLink(this, \'mapper\'); return false" onmousedown="return false">' . $npc['zone_info']['zoneName'] . '</a>.</span> 

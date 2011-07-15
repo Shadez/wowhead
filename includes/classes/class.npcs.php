@@ -287,7 +287,7 @@ Class WoW_NPCs extends WoW_Abstract {
     }
     
     public static function GetNpcSpells($entry) {
-        $cr_spells = DB::World()->select("SELECT `spell1`, `spell2`, `spell3`, `spell4` FROM `creature_template` WHERE `entry` IN (%)", $entry);
+        $cr_spells = DB::World()->select("SELECT `spell1`, `spell2`, `spell3`, `spell4` FROM `creature_template` WHERE `entry` IN (%s)", $entry);
         if(!$cr_spells) {
             return false;
         }
@@ -304,7 +304,7 @@ Class WoW_NPCs extends WoW_Abstract {
         }
         $spells = DB::World()->select("
         SELECT
-        `a`.`id`
+        `a`.`id`,
         `a`.`SpellName_en` AS `name`,
         `a`.`SpellName_%s` AS `name_locale`,
         `a`.`Rank_1` AS `rank`,
@@ -386,6 +386,33 @@ Class WoW_NPCs extends WoW_Abstract {
             }
         }
         return $loot;
+    }
+    
+    public static function GetNPCInfo($entry, $type) {
+        if(!DB::World()->selectCell("SELECT 1 FROM creature_template WHERE entry = %d", $entry)) {
+            return false;
+        }
+        switch($type) {
+            case 'name':
+                if(WoW_Locale::GetLocaleID() == LOCALE_EN) {
+                    return DB::World()->selectCell("SELECT name FROM creature_template WHERE entry = %d", $entry);
+                }
+                $data = DB::World()->selectRow("
+                SELECT
+                a.name,
+                b.name_loc%d AS name_loc
+                FROM creature_template AS a
+                LEFT JOIN locales_creature AS b ON b.entry = a.entry
+                WHERE a.entry = %d", WoW_Locale::GetLocaleID(), $entry);
+                if(!$data) {
+                    return DB::World()->selectCell("SELECT name FROM creature_template WHERE entry = %d", $entry);
+                }
+                if($data['name_loc'] != null) {
+                    return $data['name_loc'];
+                }
+                return $data['name'];
+                break;
+        }
     }
 }
 ?>

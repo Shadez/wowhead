@@ -308,7 +308,7 @@ Class WoW_Template {
     }
     
     private static function GetRandomTitle() {
-        $title = DB::World()->selectRow("SELECT `title_en` AS `originalTitle`%s FROM `DBPREFIX_titles` ORDER BY RAND() LIMIT 1", WoW_Locale::GetLocaleID() == LOCALE_EN ? null : sprintf(', `title_%s` AS `localizedTitle`', WoW_Locale::GetLocale()));
+        $title = DB::World()->selectRow("SELECT `title_en` AS `originalTitle`%s FROM `DBPREFIX_site_titles` ORDER BY RAND() LIMIT 1", WoW_Locale::GetLocaleID() == LOCALE_EN ? null : sprintf(', `title_%s` AS `localizedTitle`', WoW_Locale::GetLocale()));
         if(!$title) {
             return false;
         }

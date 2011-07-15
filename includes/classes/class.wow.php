@@ -210,12 +210,14 @@ Class WoW {
             case 'most-comments':
             case 'unrated-comments':
             case 'missing-screenshots':
-            case 'random':
             case 'latest-replies':
             case 'latest-topics':
             case 'unanswered-topics':
             case 'latest-blog-comments':
                 self::InitUtils();
+                break;
+            case 'random':
+                self::GetRandomPage();
                 break;
             /** Community section **/
             case 'blog':
@@ -679,6 +681,83 @@ Class WoW {
     public function RedirectTo($page = '') {
         header('Location: ' . WoW::GetWoWPath() . '/' . $page);
         exit;
+    }
+    
+    public function GetRandomPage($redirect = true) {
+        $available_categories = array(
+            array(
+                'page' => 'item',
+                'table' => 'item_template'
+            ),
+            array(
+                'page' => 'npc',
+                'table' => 'creature_template'
+            ),
+            array(
+                'page' => 'quest',
+                'table' => 'creature_template'
+            ),
+            /*
+            array(
+                'page' => 'achievement',
+                'table' => 'DBPREFIX_achievement'
+            ),
+            array(
+                'page' => 'spell',
+                'table' => 'DBPREFIX_spell'
+            ),
+            array(
+                'page' => 'class',
+                'table' => 'DBPREFIX_classes'
+            ),
+            array(
+                'page' => 'race',
+                'table' => 'DBPREFIX_races'
+            ),
+            array(
+                'page' => 'faction',
+                'table' => 'DBPREFIX_faction'
+            ),
+            array(
+                'page' => 'pet',
+                'table' => 'DBPREFIX_pets'
+            ),
+            array(
+                'page' => 'itemset',
+                'table' => 'DBPREFIX_itemset'
+            ),
+            array(
+                'page' => 'object',
+                'table' => 'gameobject_template'
+            ),
+            array(
+                'page' => 'skill',
+                'table' => 'DBPREFIX_skills'
+            ),
+            array(
+                'page' => 'title',
+                'table' => 'DBPREFIX_titles'
+            ),
+            arrray(
+                'page' => 'zone',
+                'table' => 'DBPREFIX_zones'
+            )
+            */
+        );
+        $page = $available_categories[rand(0, (count($available_categories) - 1))];
+        if(!isset($page['entry'])) {
+            if(preg_match('/DBPREFIX/', $page['table'])) {
+                $entry = 'id';
+            }
+            else {
+                $entry = 'entry';
+            }
+        }
+        else {
+            $entry = $page['entry'];
+        }
+        $random_id = DB::World()->selectCell("SELECT `%s` FROM `%s` WHERE `%s` > 0 ORDER BY RAND() LIMIT 1", $entry, $page['table'], $entry);
+        self::RedirectTo($page['page'] . '=' . $random_id);
     }
 }
 ?>
