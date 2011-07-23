@@ -96,7 +96,7 @@ if(isset($_GET['locale'])) {
     }
 }
 // Load locale
-if(isset($_COOKIE['wow_locale']) && WoW_Locale::IsLocale($_COOKIE['wow_locale'], $_COOKIE['wow_locale_id'])) {
+if(isset($_COOKIE['wow_locale'], $_COOKIE['wow_locale_id']) && WoW_Locale::IsLocale($_COOKIE['wow_locale'], $_COOKIE['wow_locale_id'])) {
     WoW_Locale::SetLocale($_COOKIE['wow_locale'], $_COOKIE['wow_locale_id']);
 }
 else {

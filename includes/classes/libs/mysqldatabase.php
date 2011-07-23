@@ -55,14 +55,17 @@ Class WoW_DatabaseHandler {
      * @return   bool
      **/
     public function WoW_DatabaseHandler($host, $user, $password, $dbName, $charset = null, $prefix = null) {
-        $this->connectionLink = @mysql_connect($host, $user, $password, true);
+        if(!extension_loaded('mysqli')) {
+            die('Extension MySQLi was not loaded!');
+        }
+        $this->connectionLink = @mysqli_connect($host, $user, $password, $dbName);
         if(!$this->connectionLink) {
-            $this->errmsg = @mysql_error($this->connectionLink);
-            $this->errno = @mysql_errno($this->connectionLink);
+            $this->errmsg = @mysqli_error($this->connectionLink);
+            $this->errno = @mysqli_errno($this->connectionLink);
             WoW_Log::WriteError('%s : unable to connect to MySQL Server (host: "%s", dbName: "%s"). Error: %s. Check your configs.', __METHOD__, $host, $dbName, $this->errmsg ? $this->errmsg : 'none');
             return false;
         }
-        $this->dbLink = @mysql_select_db($dbName, $this->connectionLink);
+        $this->dbLink = @mysqli_select_db($this->connectionLink, $dbName);
         if(!$this->dbLink) {
             WoW_Log::WriteError('%s : unable to switch to database "%s"!', __METHOD__, $dbName);
             return false;
@@ -79,7 +82,8 @@ Class WoW_DatabaseHandler {
             'password' => $password,
             'name'     => $dbName,
             'charset'  => ($charset == null) ? 'UTF8' : $charset,
-            'prefix'   => $prefix
+            'prefix'   => $prefix,
+            'hash'     => sha1(time()),
         );
         $this->db_prefix = $prefix;
         $this->server_version = $this->selectCell("SELECT VERSION()");
@@ -121,20 +125,21 @@ Class WoW_DatabaseHandler {
         $make_array = array();
         $query_start = microtime(true);
         $this->queryCount++;
-        $performed_query = @mysql_query($safe_sql, $this->connectionLink);
-        $this->errmsg = @mysql_error($this->connectionLink);
-        $this->errno = @mysql_errno($this->connectionLink);
-        if($performed_query == false) {
+        $performed_query = @mysqli_query($this->connectionLink, $safe_sql);
+        $this->errmsg = @mysqli_error($this->connectionLink);
+        $this->errno = @mysqli_errno($this->connectionLink);
+        if(!$performed_query) {
             WoW_Log::WriteLog('%s : unable to execute SQL query (%s). MySQL error: %s', __METHOD__, $safe_sql, $this->errmsg ? sprintf('"%s" (Error #%d)', $this->errmsg, $this->errno) : 'none');
             return false;
         }
         $result = false;
         switch($queryType) {
             case SINGLE_CELL:
-                $result = @mysql_result($performed_query, 0);
+                $tmp = @mysqli_fetch_array($performed_query); // this works faster than mysql_result
+                $result = $tmp[0];
                 break;
             case SINGLE_ROW:
-                $result = @mysql_fetch_array($performed_query);
+                $result = @mysqli_fetch_assoc($performed_query);
                 if(is_array($result)) {
                     foreach($result as $rKey => $rValue) {
                         if(is_string($rKey)) {
@@ -146,7 +151,7 @@ Class WoW_DatabaseHandler {
                 break;
             case MULTIPLY_ROW:
                 $result = array();
-                while($_result = @mysql_fetch_array($performed_query)) {
+                while($_result = @mysqli_fetch_assoc($performed_query)) {
                     if(is_array($_result)) {
                         foreach($_result as $rKey => $rValue) {
                             if(is_string($rKey)) {
@@ -162,7 +167,7 @@ Class WoW_DatabaseHandler {
                 break;
             case OBJECT_QUERY:
                 $result = array();
-                while($_result = @mysql_fetch_object($performed_query)) {
+                while($_result = @mysqli_fetch_object($performed_query)) {
                     $result[] = $_result;
                 }
                 break;
@@ -177,6 +182,7 @@ Class WoW_DatabaseHandler {
         $queryTime = round($query_end - $query_start, 4);
         WoW_Log::WriteSql('[%s ms]: %s', $queryTime, $safe_sql);
         $this->queryTimeGeneration += $queryTime;
+        unset($performed_query);
         return $result;
     }
     
@@ -186,8 +192,6 @@ Class WoW_DatabaseHandler {
             for($i = 1; $i < $numArgs; $i++) {
                 if(is_string($funcArgs[$i])) {
                     $funcArgs[$i] = addslashes($funcArgs[$i]);
-                    // LIKE cases
-                    $funcArgs[$i] = str_replace(array("\'%", "%\'"), array("'%", "%'"), $funcArgs[$i]);
                 }
                 if(is_array($funcArgs[$i])) {
                     $funcArgs[$i] = $this->ConvertArray($funcArgs[$i]);
@@ -270,7 +274,7 @@ Class WoW_DatabaseHandler {
     }
     
     public function __destruct() {
-        @mysql_close($this->connectionLink);
+        @mysqli_close($this->connectionLink);
         $this->DropLastErrors();
         $this->DropCounters();
     }
@@ -308,6 +312,9 @@ Class WoW_DatabaseHandler {
     public function GetStatistics() {
         return array('queryCount' => $this->queryCount, 'queryTimeGeneration' => $this->queryTimeGeneration);
     }
+    
+    public function GetInsertID() {
+        return mysqli_insert_id($this->connectionLink);
+    }
 }
-
 ?>
