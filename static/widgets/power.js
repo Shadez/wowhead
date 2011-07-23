@@ -357,7 +357,7 @@ if (typeof $WowheadPower == "undefined") {
                         }
                     }
                 }
-                $WH.g_ajaxIshRequest(ak + "/" + u[at][1] + "=" + an + "&power" + am + "&pl=" + wowheadLocale);
+                $WH.g_ajaxIshRequest(ak + wowheadUrl + "/" + u[at][1] + "=" + an + "&power" + am + "&pl=" + wowheadLocale);
                 if (ag[at] && !ag[at][au]) {
                     $WH.g_ajaxIshRequest(ak + ag[at].url)
                 }
