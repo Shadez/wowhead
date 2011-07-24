@@ -41,7 +41,8 @@ Class WoW_DatabaseHandler {
     private $errmsg = null;
     private $errno = 0;
     private $server_version = null;
-    
+    private $driver_type = 'mysqli';
+
     /**
      * Connect to DB
      * @category WoW Database Handler
@@ -55,20 +56,42 @@ Class WoW_DatabaseHandler {
      * @return   bool
      **/
     public function WoW_DatabaseHandler($host, $user, $password, $dbName, $charset = null, $prefix = null) {
-        if(!extension_loaded('mysqli')) {
-            die('Extension MySQLi was not loaded!');
+        if(isset(DatabaseConfig::$MySQLExtension)) {
+            $this->driver_type = DatabaseConfig::$MySQLExtension;
         }
-        $this->connectionLink = @mysqli_connect($host, $user, $password, $dbName);
-        if(!$this->connectionLink) {
-            $this->errmsg = @mysqli_error($this->connectionLink);
-            $this->errno = @mysqli_errno($this->connectionLink);
-            WoW_Log::WriteError('%s : unable to connect to MySQL Server (host: "%s", dbName: "%s"). Error: %s. Check your configs.', __METHOD__, $host, $dbName, $this->errmsg ? $this->errmsg : 'none');
-            return false;
+        if(!in_array($this->driver_type, array('mysql', 'mysqli'))) {
+            $this->driver_type = 'mysqli'; // Set as default
         }
-        $this->dbLink = @mysqli_select_db($this->connectionLink, $dbName);
-        if(!$this->dbLink) {
-            WoW_Log::WriteError('%s : unable to switch to database "%s"!', __METHOD__, $dbName);
-            return false;
+        if(!extension_loaded($this->driver_type)) {
+            die('Fatal Error: database driver extension (' . $this->driver_type . ') was not loaded!');
+        }
+        if($this->driver_type == 'mysqli') {
+            $this->connectionLink = @mysqli_connect($host, $user, $password, $dbName);
+            if(!$this->connectionLink) {
+                $this->errmsg = @mysqli_error($this->connectionLink);
+                $this->errno = @mysqli_errno($this->connectionLink);
+                WoW_Log::WriteError('%s : unable to connect to MySQL Server (host: "%s", dbName: "%s"). Error: %s. Check your configs.', __METHOD__, $host, $dbName, $this->errmsg ? $this->errmsg : 'none');
+                return false;
+            }
+            $this->dbLink = @mysqli_select_db($this->connectionLink, $dbName);
+            if(!$this->dbLink) {
+                WoW_Log::WriteError('%s : unable to switch to database "%s"!', __METHOD__, $dbName);
+                return false;
+            }
+        }
+        else {
+            $this->connectionLink = @mysql_connect($host, $user, $password, true);
+            if(!$this->connectionLink) {
+                $this->errmsg = @mysql_error($this->connectionLink);
+                $this->errno = @mysql_errno($this->connectionLink);
+                WoW_Log::WriteError('%s : unable to connect to MySQL Server (host: "%s", dbName: "%s"). Error: %s. Check your configs.', __METHOD__, $host, $dbName, $this->errmsg ? $this->errmsg : 'none');
+                return false;
+            }
+            $this->dbLink = @mysql_select_db($dbName, $this->connectionLink);
+            if(!$this->dbLink) {
+                WoW_Log::WriteError('%s : unable to switch to database "%s"!', __METHOD__, $dbName);
+                return false;
+            }
         }
         if($charset == null) {
             $this->query("SET NAMES UTF8");
@@ -84,6 +107,7 @@ Class WoW_DatabaseHandler {
             'charset'  => ($charset == null) ? 'UTF8' : $charset,
             'prefix'   => $prefix,
             'hash'     => sha1(time()),
+            'driver'   => $this->driver_type
         );
         $this->db_prefix = $prefix;
         $this->server_version = $this->selectCell("SELECT VERSION()");
@@ -125,9 +149,16 @@ Class WoW_DatabaseHandler {
         $make_array = array();
         $query_start = microtime(true);
         $this->queryCount++;
-        $performed_query = @mysqli_query($this->connectionLink, $safe_sql);
-        $this->errmsg = @mysqli_error($this->connectionLink);
-        $this->errno = @mysqli_errno($this->connectionLink);
+        if($this->driver_type == 'mysqli') {
+            $performed_query = @mysqli_query($this->connectionLink, $safe_sql);
+            $this->errmsg = @mysqli_error($this->connectionLink);
+            $this->errno = @mysqli_errno($this->connectionLink);
+        }
+        else {
+            $performed_query = @mysql_query($safe_sql, $this->connectionLink);
+            $this->errmsg = @mysql_error($this->connectionLink);
+            $this->errno = @mysql_errno($this->connectionLink);
+        }
         if(!$performed_query) {
             WoW_Log::WriteLog('%s : unable to execute SQL query (%s). MySQL error: %s', __METHOD__, $safe_sql, $this->errmsg ? sprintf('"%s" (Error #%d)', $this->errmsg, $this->errno) : 'none');
             return false;
@@ -135,11 +166,22 @@ Class WoW_DatabaseHandler {
         $result = false;
         switch($queryType) {
             case SINGLE_CELL:
-                $tmp = @mysqli_fetch_array($performed_query); // this works faster than mysql_result
+                if($this->driver_type == 'mysqli') {
+                    $tmp = @mysqli_fetch_array($performed_query); // this works faster than mysql_result
+                }
+                else {
+                    $tmp = @mysql_fetch_array($performed_query); // this works faster than mysql_result
+                }
                 $result = $tmp[0];
+                unset($tmp);
                 break;
             case SINGLE_ROW:
-                $result = @mysqli_fetch_assoc($performed_query);
+                if($this->driver_type == 'mysqli') {
+                    $result = @mysqli_fetch_assoc($performed_query);
+                }
+                else {
+                    $result = @mysql_fetch_assoc($performed_query);
+                }
                 if(is_array($result)) {
                     foreach($result as $rKey => $rValue) {
                         if(is_string($rKey)) {
@@ -151,24 +193,48 @@ Class WoW_DatabaseHandler {
                 break;
             case MULTIPLY_ROW:
                 $result = array();
-                while($_result = @mysqli_fetch_assoc($performed_query)) {
-                    if(is_array($_result)) {
-                        foreach($_result as $rKey => $rValue) {
-                            if(is_string($rKey)) {
-                                $make_array[$rKey] = $rValue;
+                if($this->driver_type == 'mysqli') {
+                    while($_result = @mysqli_fetch_assoc($performed_query)) {
+                        if(is_array($_result)) {
+                            foreach($_result as $rKey => $rValue) {
+                                if(is_string($rKey)) {
+                                    $make_array[$rKey] = $rValue;
+                                }
                             }
+                            $result[] = $make_array;
                         }
-                        $result[] = $make_array;
+                        else {
+                            $result[] = $_result;
+                        }
                     }
-                    else {
-                        $result[] = $_result;
+                }
+                else {
+                    while($_result = @mysql_fetch_assoc($performed_query)) {
+                        if(is_array($_result)) {
+                            foreach($_result as $rKey => $rValue) {
+                                if(is_string($rKey)) {
+                                    $make_array[$rKey] = $rValue;
+                                }
+                            }
+                            $result[] = $make_array;
+                        }
+                        else {
+                            $result[] = $_result;
+                        }
                     }
                 }
                 break;
             case OBJECT_QUERY:
                 $result = array();
-                while($_result = @mysqli_fetch_object($performed_query)) {
-                    $result[] = $_result;
+                if($this->driver_type == 'mysqli') {
+                    while($_result = @mysqli_fetch_object($performed_query)) {
+                        $result[] = $_result;
+                    }
+                }
+                else {
+                    while($_result = @mysql_fetch_object($performed_query)) {
+                        $result[] = $_result;
+                    }
                 }
                 break;
             case SQL_QUERY:

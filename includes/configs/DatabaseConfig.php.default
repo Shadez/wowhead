@@ -19,7 +19,9 @@
  **/
  
 Class DatabaseConfig {
-    
+
+    public static $MySQLExtension = 'mysqli'; // 'mysql' or 'mysqli'
+
     /**
      * World database configuration.
      * @access public
